@@ -25,24 +25,24 @@ namespace UnityEngine::Rendering {
     enum UVChannelFlags {UV0 = 1, UV1 = 2, UV2 = 4, UV3 = 8};
 }
 
-#define DECLARE_BASIC_PROPERTY(type, name) \
+#define DECLARE_FIELD_SETGET(type, name) \
 static type get_##name(UnityEngine::ParticleSystem* particleSystem); \
 static void set_##name(UnityEngine::ParticleSystem* particleSystem, type value);
 
-// DECLARE_CLASS_CODEGEN(Flare, ParticleControllerForceField, UnityEngine::Behaviour, 
+// DECLARE_CLASS_CODEGEN(Flare, ParticleSystemForceField, UnityEngine::Behaviour, 
 //     public:
 //         enum class ForceFieldShape {Sphere, Hemisphere, Cylinder, Box};
 
-//         DECLARE_BASIC_PROPERTY(UnityEngine::Vector2, rotationRandomness);
-//         DECLARE_BASIC_PROPERTY(MinMaxCurve, directionX);
-//         DECLARE_BASIC_PROPERTY(MinMaxCurve, directionY);
-//         DECLARE_BASIC_PROPERTY(MinMaxCurve, directionZ);
-//         DECLARE_BASIC_PROPERTY(MinMaxCurve, gravity);
-//         DECLARE_BASIC_PROPERTY(MinMaxCurve, rotationSpeed);
-//         DECLARE_BASIC_PROPERTY(MinMaxCurve, rotationAttraction);
-//         DECLARE_BASIC_PROPERTY(MinMaxCurve, drag);
-//         DECLARE_BASIC_PROPERTY(MinMaxCurve, vectorFieldSpeed);
-//         DECLARE_BASIC_PROPERTY(MinMaxCurve, vectorFieldAttraction);
+//         DECLARE_FIELD_SETGET(UnityEngine::Vector2, rotationRandomness);
+//         DECLARE_FIELD_SETGET(UnityEngine::ParticleSystem::MinMaxCurve, directionX);
+//         DECLARE_FIELD_SETGET(UnityEngine::ParticleSystem::MinMaxCurve, directionY);
+//         DECLARE_FIELD_SETGET(UnityEngine::ParticleSystem::MinMaxCurve, directionZ);
+//         DECLARE_FIELD_SETGET(UnityEngine::ParticleSystem::MinMaxCurve, gravity);
+//         DECLARE_FIELD_SETGET(UnityEngine::ParticleSystem::MinMaxCurve, rotationSpeed);
+//         DECLARE_FIELD_SETGET(UnityEngine::ParticleSystem::MinMaxCurve, rotationAttraction);
+//         DECLARE_FIELD_SETGET(UnityEngine::ParticleSystem::MinMaxCurve, drag);
+//         DECLARE_FIELD_SETGET(UnityEngine::ParticleSystem::MinMaxCurve, vectorFieldSpeed);
+//         DECLARE_FIELD_SETGET(UnityEngine::ParticleSystem::MinMaxCurve, vectorFieldAttraction);
 // );
 
 // DECLARE_CLASS_CODEGEN(Flare, ParticleController, UnityEngine::MonoBehaviour,
@@ -108,424 +108,424 @@ namespace Flare {
             };
 
             struct MainModule {
-                DECLARE_BASIC_PROPERTY(UnityEngine::Vector3, emitterVelocity);
-                DECLARE_BASIC_PROPERTY(float, duration);
-                DECLARE_BASIC_PROPERTY(bool, loop);
-                DECLARE_BASIC_PROPERTY(bool, prewarm);
-                DECLARE_BASIC_PROPERTY(MinMaxCurve, startDelay);
-                DECLARE_BASIC_PROPERTY(float, startDelayMultiplier);
-                DECLARE_BASIC_PROPERTY(MinMaxCurve, startLifetime);
-                DECLARE_BASIC_PROPERTY(float, startLifetimeMultiplier);
-                DECLARE_BASIC_PROPERTY(MinMaxCurve, startSpeed);
-                DECLARE_BASIC_PROPERTY(float, startSpeedMultiplier);
-                DECLARE_BASIC_PROPERTY(bool, startSize3D);
-                DECLARE_BASIC_PROPERTY(MinMaxCurve, startSize);
-                DECLARE_BASIC_PROPERTY(float, startSizeMultiplier);
-                DECLARE_BASIC_PROPERTY(MinMaxCurve, startSizeX);
-                DECLARE_BASIC_PROPERTY(float, startSizeXMultiplier);
-                DECLARE_BASIC_PROPERTY(MinMaxCurve, startSizeY);
-                DECLARE_BASIC_PROPERTY(float, startSizeYMultiplier);
-                DECLARE_BASIC_PROPERTY(MinMaxCurve, startSizeZ);
-                DECLARE_BASIC_PROPERTY(float, startSizeZMultiplier);
-                DECLARE_BASIC_PROPERTY(bool, startRotation3D);
-                DECLARE_BASIC_PROPERTY(MinMaxCurve, startRotation);
-                DECLARE_BASIC_PROPERTY(float, startRotationMultiplier);
-                DECLARE_BASIC_PROPERTY(MinMaxCurve, startRotationX);
-                DECLARE_BASIC_PROPERTY(float, startRotationXMultiplier);
-                DECLARE_BASIC_PROPERTY(MinMaxCurve, startRotationY);
-                DECLARE_BASIC_PROPERTY(float, startRotationYMultiplier);
-                DECLARE_BASIC_PROPERTY(MinMaxCurve, startRotationZ);
-                DECLARE_BASIC_PROPERTY(float, startRotationZMultiplier);
-                DECLARE_BASIC_PROPERTY(float, flipRotation);
-                DECLARE_BASIC_PROPERTY(MinMaxGradient, startColor);
-                DECLARE_BASIC_PROPERTY(GravitySource, gravitySource);
-                DECLARE_BASIC_PROPERTY(MinMaxCurve, gravityModifier);
-                DECLARE_BASIC_PROPERTY(float, gravityModifierMultiplier);
-                DECLARE_BASIC_PROPERTY(SimulationSpace, simulationSpace);
-                DECLARE_BASIC_PROPERTY(UnityEngine::Transform*, customSimulationSpace);
-                DECLARE_BASIC_PROPERTY(float, simulationSpeed);
-                DECLARE_BASIC_PROPERTY(bool, useUnscaledTime);
-                DECLARE_BASIC_PROPERTY(ScalingMode, scalingMode);
-                DECLARE_BASIC_PROPERTY(bool, playOnAwake);
-                DECLARE_BASIC_PROPERTY(int, maxParticles);
-                DECLARE_BASIC_PROPERTY(EmitterVelocityMode, emitterVelocityMode);
-                DECLARE_BASIC_PROPERTY(StopAction, stopAction);
-                DECLARE_BASIC_PROPERTY(RingBufferMode, ringBufferMode);
-                DECLARE_BASIC_PROPERTY(UnityEngine::Vector2, ringBufferLoopRange);
-                DECLARE_BASIC_PROPERTY(CullingMode, cullingMode);
+                DECLARE_FIELD_SETGET(UnityEngine::Vector3, emitterVelocity);
+                DECLARE_FIELD_SETGET(float, duration);
+                DECLARE_FIELD_SETGET(bool, loop);
+                DECLARE_FIELD_SETGET(bool, prewarm);
+                DECLARE_FIELD_SETGET(MinMaxCurve, startDelay);
+                DECLARE_FIELD_SETGET(float, startDelayMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, startLifetime);
+                DECLARE_FIELD_SETGET(float, startLifetimeMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, startSpeed);
+                DECLARE_FIELD_SETGET(float, startSpeedMultiplier);
+                DECLARE_FIELD_SETGET(bool, startSize3D);
+                DECLARE_FIELD_SETGET(MinMaxCurve, startSize);
+                DECLARE_FIELD_SETGET(float, startSizeMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, startSizeX);
+                DECLARE_FIELD_SETGET(float, startSizeXMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, startSizeY);
+                DECLARE_FIELD_SETGET(float, startSizeYMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, startSizeZ);
+                DECLARE_FIELD_SETGET(float, startSizeZMultiplier);
+                DECLARE_FIELD_SETGET(bool, startRotation3D);
+                DECLARE_FIELD_SETGET(MinMaxCurve, startRotation);
+                DECLARE_FIELD_SETGET(float, startRotationMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, startRotationX);
+                DECLARE_FIELD_SETGET(float, startRotationXMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, startRotationY);
+                DECLARE_FIELD_SETGET(float, startRotationYMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, startRotationZ);
+                DECLARE_FIELD_SETGET(float, startRotationZMultiplier);
+                DECLARE_FIELD_SETGET(float, flipRotation);
+                DECLARE_FIELD_SETGET(MinMaxGradient, startColor);
+                DECLARE_FIELD_SETGET(GravitySource, gravitySource);
+                DECLARE_FIELD_SETGET(MinMaxCurve, gravityModifier);
+                DECLARE_FIELD_SETGET(float, gravityModifierMultiplier);
+                DECLARE_FIELD_SETGET(SimulationSpace, simulationSpace);
+                DECLARE_FIELD_SETGET(UnityEngine::Transform*, customSimulationSpace);
+                DECLARE_FIELD_SETGET(float, simulationSpeed);
+                DECLARE_FIELD_SETGET(bool, useUnscaledTime);
+                DECLARE_FIELD_SETGET(ScalingMode, scalingMode);
+                DECLARE_FIELD_SETGET(bool, playOnAwake);
+                DECLARE_FIELD_SETGET(int, maxParticles);
+                DECLARE_FIELD_SETGET(EmitterVelocityMode, emitterVelocityMode);
+                DECLARE_FIELD_SETGET(StopAction, stopAction);
+                DECLARE_FIELD_SETGET(RingBufferMode, ringBufferMode);
+                DECLARE_FIELD_SETGET(UnityEngine::Vector2, ringBufferLoopRange);
+                DECLARE_FIELD_SETGET(CullingMode, cullingMode);
+            };
+
+            struct EmissionModule {
+                DECLARE_FIELD_SETGET(bool, enabled);
+                DECLARE_FIELD_SETGET(MinMaxCurve, rateOverTime);
+                DECLARE_FIELD_SETGET(float, rateOverTimeMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, rateOverDistance);
+                DECLARE_FIELD_SETGET(float, rateOverDistanceMultiplier);
+                Burst GetBurst(UnityEngine::ParticleSystem* particleSystem, int index);
+                void SetBurst(UnityEngine::ParticleSystem* particleSystem, int index, Burst burst);
+                DECLARE_FIELD_SETGET(int, burstCount);
+            };
+
+            struct ShapeModule {
+                DECLARE_FIELD_SETGET(bool, enabled);
+                DECLARE_FIELD_SETGET(ShapeType, shapeType);
+                DECLARE_FIELD_SETGET(float, randomDirectionAmount);
+                DECLARE_FIELD_SETGET(float, sphericalDirectionAmount);
+                DECLARE_FIELD_SETGET(float, randomPositionAmount);
+                DECLARE_FIELD_SETGET(bool, alignToDirection);
+                DECLARE_FIELD_SETGET(float, radius);
+                DECLARE_FIELD_SETGET(ShapeMultiModeValue, radiusMode);
+                DECLARE_FIELD_SETGET(float, radiusSpread);
+                DECLARE_FIELD_SETGET(MinMaxCurve, radiusSpeed);
+                DECLARE_FIELD_SETGET(float, radiusSpeedMultiplier);
+                DECLARE_FIELD_SETGET(float, radiusThickness);
+                DECLARE_FIELD_SETGET(float, angle);
+                DECLARE_FIELD_SETGET(float, length);
+                DECLARE_FIELD_SETGET(UnityEngine::Vector3, boxThickness);
+                DECLARE_FIELD_SETGET(MeshShapeType, meshShapeType);
+                DECLARE_FIELD_SETGET(UnityEngine::Mesh*, mesh);
+                DECLARE_FIELD_SETGET(UnityEngine::MeshRenderer*, meshRenderer);
+                DECLARE_FIELD_SETGET(UnityEngine::SkinnedMeshRenderer*, skinnedMeshRenderer);
+                DECLARE_FIELD_SETGET(UnityEngine::Sprite*, sprite);
+                DECLARE_FIELD_SETGET(UnityEngine::SpriteRenderer*, spriteRenderer);
+                DECLARE_FIELD_SETGET(bool, useMeshMaterialIndex);
+                DECLARE_FIELD_SETGET(int, meshMaterialIndex);
+                DECLARE_FIELD_SETGET(bool, useMeshColors);
+                DECLARE_FIELD_SETGET(float, normalOffset);
+                DECLARE_FIELD_SETGET(ShapeMultiModeValue, meshSpawnMode);
+                DECLARE_FIELD_SETGET(float, meshSpawnSpread);
+                DECLARE_FIELD_SETGET(MinMaxCurve, meshSpawnSpeed);
+                DECLARE_FIELD_SETGET(float, meshSpawnSpeedMultiplier);
+                DECLARE_FIELD_SETGET(float, arc);
+                DECLARE_FIELD_SETGET(ShapeMultiModeValue, arcMode);
+                DECLARE_FIELD_SETGET(float, arcSpread);
+                DECLARE_FIELD_SETGET(MinMaxCurve, arcSpeed);
+                DECLARE_FIELD_SETGET(float, arcSpeedMultiplier);
+                DECLARE_FIELD_SETGET(float, donutRadius);
+                DECLARE_FIELD_SETGET(UnityEngine::Vector3, position);
+                DECLARE_FIELD_SETGET(UnityEngine::Vector3, rotation);
+                DECLARE_FIELD_SETGET(UnityEngine::Vector3, scale);
+                DECLARE_FIELD_SETGET(UnityEngine::Texture2D*, texture);
+                DECLARE_FIELD_SETGET(ShapeTextureChannel, textureClipChannel);
+                DECLARE_FIELD_SETGET(float, textureClipThreshold);
+                DECLARE_FIELD_SETGET(bool, textureColorAffectsParticles);
+                DECLARE_FIELD_SETGET(bool, textureAlphaAffectsParticles);
+                DECLARE_FIELD_SETGET(bool, textureBilinearFiltering);
+                DECLARE_FIELD_SETGET(int, textureUVChannel);
+            };
+
+            struct CollisionModule {
+                DECLARE_FIELD_SETGET(bool, enabled);
+                DECLARE_FIELD_SETGET(CollisionType, type);
+                DECLARE_FIELD_SETGET(CollisionMode, mode);
+                DECLARE_FIELD_SETGET(MinMaxCurve, dampen);
+                DECLARE_FIELD_SETGET(float, dampenMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, bounce);
+                DECLARE_FIELD_SETGET(float, bounceMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, lifetimeLoss);
+                DECLARE_FIELD_SETGET(float, lifetimeLossMultiplier);
+                DECLARE_FIELD_SETGET(float, minKillSpeed);
+                DECLARE_FIELD_SETGET(float, maxKillSpeed);
+                DECLARE_FIELD_SETGET(UnityEngine::LayerMask, collidesWith);
+                DECLARE_FIELD_SETGET(bool, enableDynamicColliders);
+                DECLARE_FIELD_SETGET(int, maxCollisionShapes);
+                DECLARE_FIELD_SETGET(CollisionQuality, quality);
+                DECLARE_FIELD_SETGET(float, voxelSize);
+                DECLARE_FIELD_SETGET(float, radiusScale);
+                DECLARE_FIELD_SETGET(bool, sendCollisionMessages);
+                DECLARE_FIELD_SETGET(float, colliderForce);
+                DECLARE_FIELD_SETGET(bool, multiplyColliderForceByCollisionAngle);
+                DECLARE_FIELD_SETGET(bool, multiplyColliderForceByParticleSpeed);
+                DECLARE_FIELD_SETGET(bool, multiplyColliderForceByParticleSize);
+                void AddPlane(UnityEngine::ParticleSystem* particleSystem, UnityEngine::Transform* transform);
+                void RemovePlane(UnityEngine::ParticleSystem* particleSystem, int index);
+                void RemovePlaneObject(UnityEngine::ParticleSystem* particleSystem, UnityEngine::Transform* transform);
+                void SetPlane(UnityEngine::ParticleSystem* particleSystem, int index, UnityEngine::Transform* transform);
+                UnityEngine::Transform* GetPlane(UnityEngine::ParticleSystem* particleSystem, int index);
+                int get_planeCount(UnityEngine::ParticleSystem* particleSystem);
+                DECLARE_FIELD_SETGET(bool, enableInteriorCollisions);
+            };
+
+            struct TriggerModule {
+                DECLARE_FIELD_SETGET(bool, enabled);
+                DECLARE_FIELD_SETGET(OverlapAction, inside);
+                DECLARE_FIELD_SETGET(OverlapAction, outside);
+                DECLARE_FIELD_SETGET(OverlapAction, enter);
+                DECLARE_FIELD_SETGET(OverlapAction, exit);
+                DECLARE_FIELD_SETGET(ColliderQueryMode, colliderQueryMode);
+                DECLARE_FIELD_SETGET(float, radiusScale);
+                void AddCollider(UnityEngine::ParticleSystem* particleSystem, UnityEngine::Component* collider);
+                void RemoveCollider(UnityEngine::ParticleSystem* particleSystem, int index);
+                void RemoveColliderObject(UnityEngine::ParticleSystem* particleSystem, UnityEngine::Component* component);
+                void SetCollider(UnityEngine::ParticleSystem* particleSystem, int index, UnityEngine::Component* collider);
+                UnityEngine::Component* GetCollider(UnityEngine::ParticleSystem* particleSystem, int index);
+                int get_colliderCount(UnityEngine::ParticleSystem* particleSystem);
+            };
+
+            struct SubEmittersModule {
+                DECLARE_FIELD_SETGET(bool, enabled);
+                int get_subEmittersCount(UnityEngine::ParticleSystem* particleSystem);
+                void AddSubEmitter(UnityEngine::ParticleSystem* particleSystem, UnityEngine::ParticleSystem* subEmitter, SubEmitterType type, SubEmitterProperties properties, float emitProbability = 1.0f);
+                void RemoveSubEmitter(UnityEngine::ParticleSystem* particleSystem, int index);
+                void RemoveSubEmitterObject(UnityEngine::ParticleSystem* particleSystem, UnityEngine::ParticleSystem* subEmitter);
+                void SetSubEmitterSystem(UnityEngine::ParticleSystem* particleSystem, int index, UnityEngine::ParticleSystem* subEmitter);
+                void SetSubEmitterType(UnityEngine::ParticleSystem* particleSystem, int index, SubEmitterType type);
+                void SetSubEmitterProperties(UnityEngine::ParticleSystem* particleSystem, int index, SubEmitterProperties properties);
+                void SetSubEmitterEmitProbability(UnityEngine::ParticleSystem* particleSystem, int index, float emitProbability);
+                UnityEngine::ParticleSystem* GetSubEmitterSystem(UnityEngine::ParticleSystem* particleSystem, int index);
+                SubEmitterType GetSubEmitterType(UnityEngine::ParticleSystem* particleSystem, int index);
+                SubEmitterProperties GetSubEmitterProperties(UnityEngine::ParticleSystem* particleSystem, int index);
+                float GetSubEmitterEmitProbability(UnityEngine::ParticleSystem* particleSystem, int index);
+            };
+
+            struct TextureSheetAnimationModule {
+                DECLARE_FIELD_SETGET(bool, enabled);
+                DECLARE_FIELD_SETGET(AnimationMode, mode);
+                DECLARE_FIELD_SETGET(AnimationTimeMode, timeMode);
+                DECLARE_FIELD_SETGET(float, fps);
+                DECLARE_FIELD_SETGET(int, numTilesX);
+                DECLARE_FIELD_SETGET(int, numTilesY);
+                DECLARE_FIELD_SETGET(AnimationType, animation);
+                DECLARE_FIELD_SETGET(AnimationRowMode, rowMode);
+                DECLARE_FIELD_SETGET(MinMaxCurve, frameOverTime);
+                DECLARE_FIELD_SETGET(float, frameOverTimeMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, startFrame);
+                DECLARE_FIELD_SETGET(float, startFrameMultiplier);
+                DECLARE_FIELD_SETGET(int, cycleCount);
+                DECLARE_FIELD_SETGET(int, rowIndex);
+                DECLARE_FIELD_SETGET(UnityEngine::Rendering::UVChannelFlags, uvChannelMask);
+                int get_spriteCount(UnityEngine::ParticleSystem* particleSystem);
+                DECLARE_FIELD_SETGET(UnityEngine::Vector2, speedRange);
+                void AddSprite(UnityEngine::ParticleSystem* particleSystem, UnityEngine::Sprite* sprite);
+                void RemoveSprite(UnityEngine::ParticleSystem* particleSystem, int index);
+                void SetSprite(UnityEngine::ParticleSystem* particleSystem, int index, UnityEngine::Sprite* sprite);
+                UnityEngine::Sprite* GetSprite(UnityEngine::ParticleSystem* particleSystem, int index);
+            };
+
+            struct VelocityOverLifetimeModule {
+                DECLARE_FIELD_SETGET(bool, enabled);
+                DECLARE_FIELD_SETGET(MinMaxCurve, x);
+                DECLARE_FIELD_SETGET(MinMaxCurve, y);
+                DECLARE_FIELD_SETGET(MinMaxCurve, z);
+                DECLARE_FIELD_SETGET(float, xMultiplier);
+                DECLARE_FIELD_SETGET(float, yMultiplier);
+                DECLARE_FIELD_SETGET(float, zMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, orbitalX);
+                DECLARE_FIELD_SETGET(MinMaxCurve, orbitalY);
+                DECLARE_FIELD_SETGET(MinMaxCurve, orbitalZ);
+                DECLARE_FIELD_SETGET(float, orbitalXMultiplier);
+                DECLARE_FIELD_SETGET(float, orbitalYMultiplier);
+                DECLARE_FIELD_SETGET(float, orbitalZMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, orbitalOffsetX);
+                DECLARE_FIELD_SETGET(MinMaxCurve, orbitalOffsetY);
+                DECLARE_FIELD_SETGET(MinMaxCurve, orbitalOffsetZ);
+                DECLARE_FIELD_SETGET(float, orbitalOffsetXMultiplier);
+                DECLARE_FIELD_SETGET(float, orbitalOffsetYMultiplier);
+                DECLARE_FIELD_SETGET(float, orbitalOffsetZMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, radial);
+                DECLARE_FIELD_SETGET(float, radialMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, speedModifier);
+                DECLARE_FIELD_SETGET(float, speedModifierMultiplier);
+                DECLARE_FIELD_SETGET(SimulationSpace, space);
+            };
+
+            struct LimitVelocityOverLifetimeModule {
+                DECLARE_FIELD_SETGET(bool, enabled);
+                DECLARE_FIELD_SETGET(MinMaxCurve, limitX);
+                DECLARE_FIELD_SETGET(float, limitXMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, limitY);
+                DECLARE_FIELD_SETGET(float, limitYMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, limitZ);
+                DECLARE_FIELD_SETGET(float, limitZMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, limit);
+                DECLARE_FIELD_SETGET(float, limitMultiplier);
+                DECLARE_FIELD_SETGET(float, dampen);
+                DECLARE_FIELD_SETGET(bool, separateAxes);
+                DECLARE_FIELD_SETGET(SimulationSpace, space);
+                DECLARE_FIELD_SETGET(MinMaxCurve, drag);
+                DECLARE_FIELD_SETGET(float, dragMultiplier);
+                DECLARE_FIELD_SETGET(bool, multiplyDragByParticleSize);
+                DECLARE_FIELD_SETGET(bool, multiplyDragByParticleVelocity);
+            };
+
+            struct InheritVelocityModule {
+                DECLARE_FIELD_SETGET(bool, enabled);
+                DECLARE_FIELD_SETGET(InheritVelocityMode, mode);
+                DECLARE_FIELD_SETGET(MinMaxCurve, curve);
+                DECLARE_FIELD_SETGET(float, curveMultiplier);
+            };
+
+            struct LifetimeByEmitterSpeedModule {
+                DECLARE_FIELD_SETGET(bool, enabled);
+                DECLARE_FIELD_SETGET(MinMaxCurve, curve);
+                DECLARE_FIELD_SETGET(float, curveMultiplier);
+                DECLARE_FIELD_SETGET(UnityEngine::Vector2, range);
+            };
+
+            struct ForceOverLifetimeModule {
+                DECLARE_FIELD_SETGET(bool, enabled);
+                DECLARE_FIELD_SETGET(MinMaxCurve, x);
+                DECLARE_FIELD_SETGET(MinMaxCurve, y);
+                DECLARE_FIELD_SETGET(MinMaxCurve, z);
+                DECLARE_FIELD_SETGET(float, xMultiplier);
+                DECLARE_FIELD_SETGET(float, yMultiplier);
+                DECLARE_FIELD_SETGET(float, zMultiplier);
+                DECLARE_FIELD_SETGET(SimulationSpace, space);
+                DECLARE_FIELD_SETGET(bool, randomized);
+            };
+
+            struct ColorOverLifetimeModule {
+                DECLARE_FIELD_SETGET(bool, enabled);
+                DECLARE_FIELD_SETGET(MinMaxGradient, color);
+            };
+
+            struct ColorBySpeedModule {
+                DECLARE_FIELD_SETGET(bool, enabled);
+                DECLARE_FIELD_SETGET(MinMaxGradient, color);
+                DECLARE_FIELD_SETGET(UnityEngine::Vector2, range);
+            };
+
+            struct SizeOverLifetimeModule {
+                DECLARE_FIELD_SETGET(bool, enabled);
+                DECLARE_FIELD_SETGET(MinMaxCurve, size);
+                DECLARE_FIELD_SETGET(float, sizeMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, x);
+                DECLARE_FIELD_SETGET(float, xMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, y);
+                DECLARE_FIELD_SETGET(float, yMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, z);
+                DECLARE_FIELD_SETGET(float, zMultiplier);
+                DECLARE_FIELD_SETGET(bool, separateAxes);
+            };
+
+            struct SizeBySpeedModule {
+                DECLARE_FIELD_SETGET(bool, enabled);
+                DECLARE_FIELD_SETGET(MinMaxCurve, size);
+                DECLARE_FIELD_SETGET(float, sizeMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, x);
+                DECLARE_FIELD_SETGET(float, xMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, y);
+                DECLARE_FIELD_SETGET(float, yMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, z);
+                DECLARE_FIELD_SETGET(float, zMultiplier);
+                DECLARE_FIELD_SETGET(bool, separateAxes);
+                DECLARE_FIELD_SETGET(UnityEngine::Vector2, range);
+            };
+
+            struct RotationOverLifetimeModule {
+                DECLARE_FIELD_SETGET(bool, enabled);
+                DECLARE_FIELD_SETGET(MinMaxCurve, x);
+                DECLARE_FIELD_SETGET(float, xMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, y);
+                DECLARE_FIELD_SETGET(float, yMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, z);
+                DECLARE_FIELD_SETGET(float, zMultiplier);
+                DECLARE_FIELD_SETGET(bool, separateAxes);
+            };
+
+            struct RotationBySpeedModule {
+                DECLARE_FIELD_SETGET(bool, enabled);
+                DECLARE_FIELD_SETGET(MinMaxCurve, x);
+                DECLARE_FIELD_SETGET(float, xMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, y);
+                DECLARE_FIELD_SETGET(float, yMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, z);
+                DECLARE_FIELD_SETGET(float, zMultiplier);
+                DECLARE_FIELD_SETGET(bool, separateAxes);
+                DECLARE_FIELD_SETGET(UnityEngine::Vector2, range);
+            };
+
+            // struct ExternalForcesModule {
+            //     DECLARE_FIELD_SETGET(bool, enabled);
+            //     DECLARE_FIELD_SETGET(float, multiplier);
+            //     DECLARE_FIELD_SETGET(MinMaxCurve, multiplierCurve);
+            //     DECLARE_FIELD_SETGET(GameObjectFilter, influenceFilter);
+            //     DECLARE_FIELD_SETGET(UnityEngine::LayerMask, influenceMask);
+            //     int get_influenceCount(UnityEngine::ParticleSystem* particleSystem);
+            //     bool IsAffectedBy(UnityEngine::ParticleSystem* particleSystem, ParticleControllerForceField field);
+            //     void AddInfluence(UnityEngine::ParticleSystem* particleSystem, ParticleControllerForceField field);
+            //     void RemoveInfluenceAtIndex(UnityEngine::ParticleSystem* particleSystem, int index);
+            //     void RemoveInfluence(UnityEngine::ParticleSystem* particleSystem, ParticleControllerForceField field);
+            //     void RemoveAllInfluences(UnityEngine::ParticleSystem* particleSystem);
+            //     void SetInfluence(UnityEngine::ParticleSystem* particleSystem, int index, ParticleControllerForceField field);
+            //     ParticleControllerForceField GetInfluence(UnityEngine::ParticleSystem* particleSystem, int index);
+            // };
+
+            struct NoiseModule {
+                DECLARE_FIELD_SETGET(bool, enabled);
+                DECLARE_FIELD_SETGET(bool, separateAxes);
+                DECLARE_FIELD_SETGET(MinMaxCurve, strength);
+                DECLARE_FIELD_SETGET(float, strengthMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, strengthX);
+                DECLARE_FIELD_SETGET(float, strengthXMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, strengthY);
+                DECLARE_FIELD_SETGET(float, strengthYMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, strengthZ);
+                DECLARE_FIELD_SETGET(float, strengthZMultiplier);
+                DECLARE_FIELD_SETGET(float, frequency);
+                DECLARE_FIELD_SETGET(bool, damping);
+                DECLARE_FIELD_SETGET(int, octaveCount);
+                DECLARE_FIELD_SETGET(float, octaveMultiplier);
+                DECLARE_FIELD_SETGET(float, octaveScale);
+                DECLARE_FIELD_SETGET(NoiseQuality, quality);
+                DECLARE_FIELD_SETGET(MinMaxCurve, scrollSpeed);
+                DECLARE_FIELD_SETGET(float, scrollSpeedMultiplier);
+                DECLARE_FIELD_SETGET(bool, remapEnabled);
+                DECLARE_FIELD_SETGET(MinMaxCurve, remap);
+                DECLARE_FIELD_SETGET(float, remapMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, remapX);
+                DECLARE_FIELD_SETGET(float, remapXMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, remapY);
+                DECLARE_FIELD_SETGET(float, remapYMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, remapZ);
+                DECLARE_FIELD_SETGET(float, remapZMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, positionAmount);
+                DECLARE_FIELD_SETGET(MinMaxCurve, rotationAmount);
+                DECLARE_FIELD_SETGET(MinMaxCurve, sizeAmount);
+            };
+
+            struct LightsModule {
+                DECLARE_FIELD_SETGET(bool, enabled);
+                DECLARE_FIELD_SETGET(float, ratio);
+                DECLARE_FIELD_SETGET(bool, useRandomDistribution);
+                DECLARE_FIELD_SETGET(UnityEngine::Light*, light);
+                DECLARE_FIELD_SETGET(bool, useParticleColor);
+                DECLARE_FIELD_SETGET(bool, sizeAffectsRange);
+                DECLARE_FIELD_SETGET(bool, alphaAffectsIntensity);
+                DECLARE_FIELD_SETGET(MinMaxCurve, range);
+                DECLARE_FIELD_SETGET(float, rangeMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxCurve, intensity);
+                DECLARE_FIELD_SETGET(float, intensityMultiplier);
+                DECLARE_FIELD_SETGET(int, maxLights);
+            };
+
+            struct TrailModule {
+                DECLARE_FIELD_SETGET(bool, enabled);
+                DECLARE_FIELD_SETGET(TrailMode, mode);
+                DECLARE_FIELD_SETGET(float, ratio);
+                DECLARE_FIELD_SETGET(MinMaxCurve, lifetime);
+                DECLARE_FIELD_SETGET(float, lifetimeMultiplier);
+                DECLARE_FIELD_SETGET(float, minVertexDistance);
+                DECLARE_FIELD_SETGET(TrailTextureMode, textureMode);
+                DECLARE_FIELD_SETGET(UnityEngine::Vector2, textureScale);
+                DECLARE_FIELD_SETGET(bool, worldSpace);
+                DECLARE_FIELD_SETGET(bool, dieWithParticles);
+                DECLARE_FIELD_SETGET(bool, sizeAffectsWidth);
+                DECLARE_FIELD_SETGET(bool, sizeAffectsLifetime);
+                DECLARE_FIELD_SETGET(bool, inheritParticleColor);
+                DECLARE_FIELD_SETGET(MinMaxGradient, colorOverLifetime);
+                DECLARE_FIELD_SETGET(MinMaxCurve, widthOverTrail);
+                DECLARE_FIELD_SETGET(float, widthOverTrailMultiplier);
+                DECLARE_FIELD_SETGET(MinMaxGradient, colorOverTrail);
+                DECLARE_FIELD_SETGET(bool, generateLightingData);
+                DECLARE_FIELD_SETGET(int, ribbonCount);
+                DECLARE_FIELD_SETGET(float, shadowBias);
+                DECLARE_FIELD_SETGET(bool, splitSubEmitterRibbons);
+                DECLARE_FIELD_SETGET(bool, attachRibbonsToTransform);
             };
 
             // struct {
-            //     DECLARE_BASIC_PROPERTY(bool, enabled);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, rateOverTime);
-            //     DECLARE_BASIC_PROPERTY(float, rateOverTimeMultiplier);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, rateOverDistance);
-            //     DECLARE_BASIC_PROPERTY(float, rateOverDistanceMultiplier);
-            //     Burst GetBurst(int index);
-            //     void SetBurst(int index, Burst burst);
-            //     DECLARE_BASIC_PROPERTY(int, burstCount);
-            // } emission;
-
-            // struct {
-            //     DECLARE_BASIC_PROPERTY(bool, enabled);
-            //     DECLARE_BASIC_PROPERTY(ShapeType, shapeType);
-            //     DECLARE_BASIC_PROPERTY(float, randomDirectionAmount);
-            //     DECLARE_BASIC_PROPERTY(float, sphericalDirectionAmount);
-            //     DECLARE_BASIC_PROPERTY(float, randomPositionAmount);
-            //     DECLARE_BASIC_PROPERTY(bool, alignToDirection);
-            //     DECLARE_BASIC_PROPERTY(float, radius);
-            //     DECLARE_BASIC_PROPERTY(ShapeMultiModeValue, radiusMode);
-            //     DECLARE_BASIC_PROPERTY(float, radiusSpread);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, radiusSpeed);
-            //     DECLARE_BASIC_PROPERTY(float, radiusSpeedMultiplier);
-            //     DECLARE_BASIC_PROPERTY(float, radiusThickness);
-            //     DECLARE_BASIC_PROPERTY(float, angle);
-            //     DECLARE_BASIC_PROPERTY(float, length);
-            //     DECLARE_BASIC_PROPERTY(UnityEngine::Vector3, boxThickness);
-            //     DECLARE_BASIC_PROPERTY(MeshShapeType, meshShapeType);
-            //     DECLARE_BASIC_PROPERTY(UnityEngine::Mesh, mesh);
-            //     DECLARE_BASIC_PROPERTY(UnityEngine::MeshRenderer, meshRenderer);
-            //     DECLARE_BASIC_PROPERTY(UnityEngine::SkinnedMeshRenderer, skinnedMeshRenderer);
-            //     DECLARE_BASIC_PROPERTY(UnityEngine::Sprite, sprite);
-            //     DECLARE_BASIC_PROPERTY(UnityEngine::SpriteRenderer, spriteRenderer);
-            //     DECLARE_BASIC_PROPERTY(bool, useMeshMaterialIndex);
-            //     DECLARE_BASIC_PROPERTY(int, meshMaterialIndex);
-            //     DECLARE_BASIC_PROPERTY(bool, useMeshColors);
-            //     DECLARE_BASIC_PROPERTY(float, normalOffset);
-            //     DECLARE_BASIC_PROPERTY(ShapeMultiModeValue, meshSpawnMode);
-            //     DECLARE_BASIC_PROPERTY(float, meshSpawnSpread);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, meshSpawnSpeed);
-            //     DECLARE_BASIC_PROPERTY(float, meshSpawnSpeedMultiplier);
-            //     DECLARE_BASIC_PROPERTY(float, arc);
-            //     DECLARE_BASIC_PROPERTY(ShapeMultiModeValue, arcMode);
-            //     DECLARE_BASIC_PROPERTY(float, arcSpread);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, arcSpeed);
-            //     DECLARE_BASIC_PROPERTY(float, arcSpeedMultiplier);
-            //     DECLARE_BASIC_PROPERTY(float, donutRadius);
-            //     DECLARE_BASIC_PROPERTY(UnityEngine::Vector3, position);
-            //     DECLARE_BASIC_PROPERTY(UnityEngine::Vector3, rotation);
-            //     DECLARE_BASIC_PROPERTY(UnityEngine::Vector3, scale);
-            //     DECLARE_BASIC_PROPERTY(UnityEngine::Texture2D, texture);
-            //     DECLARE_BASIC_PROPERTY(ShapeTextureChannel, textureClipChannel);
-            //     DECLARE_BASIC_PROPERTY(float, textureClipThreshold);
-            //     DECLARE_BASIC_PROPERTY(bool, textureColorAffectsParticles);
-            //     DECLARE_BASIC_PROPERTY(bool, textureAlphaAffectsParticles);
-            //     DECLARE_BASIC_PROPERTY(bool, textureBilinearFiltering);
-            //     DECLARE_BASIC_PROPERTY(int, textureUVChannel);
-            // } shape;
-
-            // struct {
-            //     DECLARE_BASIC_PROPERTY(bool, enabled)
-            //     DECLARE_BASIC_PROPERTY(CollisionType, type)
-            //     DECLARE_BASIC_PROPERTY(CollisionMode, mode)
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, dampen)
-            //     DECLARE_BASIC_PROPERTY(float, dampenMultiplier)
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, bounce)
-            //     DECLARE_BASIC_PROPERTY(float, bounceMultiplier)
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, lifetimeLoss)
-            //     DECLARE_BASIC_PROPERTY(float, lifetimeLossMultiplier)
-            //     DECLARE_BASIC_PROPERTY(float, minKillSpeed)
-            //     DECLARE_BASIC_PROPERTY(float, maxKillSpeed)
-            //     DECLARE_BASIC_PROPERTY(UnityEngine::LayerMask, collidesWith)
-            //     DECLARE_BASIC_PROPERTY(bool, enableDynamicColliders)
-            //     DECLARE_BASIC_PROPERTY(int, maxCollisionShapes)
-            //     DECLARE_BASIC_PROPERTY(CollisionQuality, quality)
-            //     DECLARE_BASIC_PROPERTY(float, voxelSize)
-            //     DECLARE_BASIC_PROPERTY(float, radiusScale)
-            //     DECLARE_BASIC_PROPERTY(bool, sendCollisionMessages)
-            //     DECLARE_BASIC_PROPERTY(float, colliderForce)
-            //     DECLARE_BASIC_PROPERTY(bool, multiplyColliderForceByCollisionAngle)
-            //     DECLARE_BASIC_PROPERTY(bool, multiplyColliderForceByParticleSpeed)
-            //     DECLARE_BASIC_PROPERTY(bool, multiplyColliderForceByParticleSize)
-            //     void AddPlane(UnityEngine::Transform transform);
-            //     void RemovePlane(int index);
-            //     void RemovePlaneObject(UnityEngine::Transform transform);
-            //     void SetPlane(int index, UnityEngine::Transform transform);
-            //     UnityEngine::Transform GetPlane(int index);
-            //     void GetPlaneCount();
-            //     DECLARE_BASIC_PROPERTY(bool, enableInteriorCollisions)
-            // } collision;
-
-            // struct {
-            //     DECLARE_BASIC_PROPERTY(bool, enabled);
-            //     DECLARE_BASIC_PROPERTY(OverlapAction, inside);
-            //     DECLARE_BASIC_PROPERTY(OverlapAction, outside);
-            //     DECLARE_BASIC_PROPERTY(OverlapAction, enter);
-            //     DECLARE_BASIC_PROPERTY(OverlapAction, exit);
-            //     DECLARE_BASIC_PROPERTY(ColliderQueryMode, colliderQueryMode);
-            //     DECLARE_BASIC_PROPERTY(float, radiusScale);
-            //     void AddCollider(UnityEngine::Component collider);
-            //     void RemoveCollider(int index);
-            //     void RemoveColliderObject(UnityEngine::Component component);
-            //     void SetCollider(int index, UnityEngine::Component collider);
-            //     UnityEngine::Component GetCollider(int index);
-            //     void GetColliderCount();
-            // } trigger;
-
-            // struct {
-            //     DECLARE_BASIC_PROPERTY(bool, enabled);
-            //     void GetSubEmittersCount();
-            //     void AddSubEmitter(ParticleController subEmitter, SubEmitterType type, SubEmitterProperties properties, float emitProbability = 1.0f);
-            //     void RemoveSubEmitter(int index);
-            //     void RemoveSubEmitterObject(ParticleController subEmitter);
-            //     void SetSubEmitterSystem(int index, ParticleController subEmitter);
-            //     void SetSubEmitterType(int index, SubEmitterType type);
-            //     void SetSubEmitterProperties(int index, SubEmitterProperties properties);
-            //     void SetSubEmitterEmitProbability(int index, float emitProbability);
-            //     ParticleController GetSubEmitterSystem(int index);
-            //     SubEmitterType GetSubEmitterType(int index);
-            //     SubEmitterProperties GetSubEmitterProperties(int index);
-            //     float GetSubEmitterEmitProbability(int index);
-            // } subEmitter;
-
-            // struct {
-            //     DECLARE_BASIC_PROPERTY(bool, enabled);
-            //     DECLARE_BASIC_PROPERTY(AnimationMode, mode);
-            //     DECLARE_BASIC_PROPERTY(AnimationTimeMode, timeMode);
-            //     DECLARE_BASIC_PROPERTY(float, fps);
-            //     DECLARE_BASIC_PROPERTY(int, numTilesX);
-            //     DECLARE_BASIC_PROPERTY(int, numTilesY);
-            //     DECLARE_BASIC_PROPERTY(AnimationType, animation);
-            //     DECLARE_BASIC_PROPERTY(AnimationRowMode, rowMode);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, frameOverTime);
-            //     DECLARE_BASIC_PROPERTY(float, frameOverTimeMultiplier);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, startFrame);
-            //     DECLARE_BASIC_PROPERTY(float, startFrameMultiplier);
-            //     DECLARE_BASIC_PROPERTY(int, cycleCount);
-            //     DECLARE_BASIC_PROPERTY(int, rowIndex);
-            //     DECLARE_BASIC_PROPERTY(UnityEngine::Rendering::UVChannelFlags, uvChannelMask);
-            //     void GetSpriteCount();
-            //     DECLARE_BASIC_PROPERTY(UnityEngine::Vector2, speedRange);
-            //     void AddSprite(UnityEngine::Sprite sprite);
-            //     void RemoveSprite(int index);
-            //     void SetSprite(int index, UnityEngine::Sprite sprite);
-            //     UnityEngine::Sprite GetSprite(int index);
-            // } textureSheetAnimation;
-
-            // struct {
-            //     DECLARE_BASIC_PROPERTY(bool, enabled);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, x);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, y);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, z);
-            //     DECLARE_BASIC_PROPERTY(float, xMultiplier);
-            //     DECLARE_BASIC_PROPERTY(float, yMultiplier);
-            //     DECLARE_BASIC_PROPERTY(float, zMultiplier);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, orbitalX);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, orbitalY);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, orbitalZ);
-            //     DECLARE_BASIC_PROPERTY(float, orbitalXMultiplier);
-            //     DECLARE_BASIC_PROPERTY(float, orbitalYMultiplier);
-            //     DECLARE_BASIC_PROPERTY(float, orbitalZMultiplier);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, orbitalOffsetX);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, orbitalOffsetY);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, orbitalOffsetZ);
-            //     DECLARE_BASIC_PROPERTY(float, orbitalOffsetXMultiplier);
-            //     DECLARE_BASIC_PROPERTY(float, orbitalOffsetYMultiplier);
-            //     DECLARE_BASIC_PROPERTY(float, orbitalOffsetZMultiplier);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, radial);
-            //     DECLARE_BASIC_PROPERTY(float, radialMultiplier);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, speedModifier);
-            //     DECLARE_BASIC_PROPERTY(float, speedModifierMultiplier);
-            //     DECLARE_BASIC_PROPERTY(SimulationSpace, space);
-            // } velocityOverLifetime;
-
-            // struct {
-            //     DECLARE_BASIC_PROPERTY(bool, enabled);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, limitX);
-            //     DECLARE_BASIC_PROPERTY(float, limitXMultiplier);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, limitY);
-            //     DECLARE_BASIC_PROPERTY(float, limitYMultiplier);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, limitZ);
-            //     DECLARE_BASIC_PROPERTY(float, limitZMultiplier);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, limit);
-            //     DECLARE_BASIC_PROPERTY(float, limitMultiplier);
-            //     DECLARE_BASIC_PROPERTY(float, dampen);
-            //     DECLARE_BASIC_PROPERTY(bool, separateAxes);
-            //     DECLARE_BASIC_PROPERTY(SimulationSpace, space);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, drag);
-            //     DECLARE_BASIC_PROPERTY(float, dragMultiplier);
-            //     DECLARE_BASIC_PROPERTY(bool, multiplyDragByParticleSize);
-            //     DECLARE_BASIC_PROPERTY(bool, multiplyDragByParticleVelocity);
-            // } limitVelocityOverLifetime;
-
-            // struct {
-            //     DECLARE_BASIC_PROPERTY(bool, enabled);
-            //     DECLARE_BASIC_PROPERTY(InheritVelocityMode, mode);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, curve);
-            //     DECLARE_BASIC_PROPERTY(float, curveMultiplier);
-            // } inheritVelocity;
-
-            // struct {
-            //     DECLARE_BASIC_PROPERTY(bool, enabled);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, curve);
-            //     DECLARE_BASIC_PROPERTY(float, curveMultiplier);
-            //     DECLARE_BASIC_PROPERTY(UnityEngine::Vector2, range);
-            // } lifetimeByEmitterSpeed;
-
-            // struct {
-            //     DECLARE_BASIC_PROPERTY(bool, enabled);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, x);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, y);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, z);
-            //     DECLARE_BASIC_PROPERTY(float, xMultiplier);
-            //     DECLARE_BASIC_PROPERTY(float, yMultiplier);
-            //     DECLARE_BASIC_PROPERTY(float, zMultiplier);
-            //     DECLARE_BASIC_PROPERTY(SimulationSpace, space);
-            //     DECLARE_BASIC_PROPERTY(bool, randomized);
-            // } forceOverLifetime;
-
-            // struct {
-            //     DECLARE_BASIC_PROPERTY(bool, enabled);
-            //     DECLARE_BASIC_PROPERTY(UnityEngine::ParticleSystem::MinMaxGradient, color);
-            // } colorOverLifetime;
-
-            // struct {
-            //     DECLARE_BASIC_PROPERTY(bool, enabled);
-            //     DECLARE_BASIC_PROPERTY(UnityEngine::ParticleSystem::MinMaxGradient, color);
-            //     DECLARE_BASIC_PROPERTY(UnityEngine::Vector2, range);
-            // } colorBySpeed;
-
-            // struct {
-            //     DECLARE_BASIC_PROPERTY(bool, enabled);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, size);
-            //     DECLARE_BASIC_PROPERTY(float, sizeMultiplier);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, x);
-            //     DECLARE_BASIC_PROPERTY(float, xMultiplier);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, y);
-            //     DECLARE_BASIC_PROPERTY(float, yMultiplier);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, z);
-            //     DECLARE_BASIC_PROPERTY(float, zMultiplier);
-            //     DECLARE_BASIC_PROPERTY(bool, separateAxes);
-            // } sizeOverLifetime;
-
-            // struct {
-            //     DECLARE_BASIC_PROPERTY(bool, enabled);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, size);
-            //     DECLARE_BASIC_PROPERTY(float, sizeMultiplier);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, x);
-            //     DECLARE_BASIC_PROPERTY(float, xMultiplier);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, y);
-            //     DECLARE_BASIC_PROPERTY(float, yMultiplier);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, z);
-            //     DECLARE_BASIC_PROPERTY(float, zMultiplier);
-            //     DECLARE_BASIC_PROPERTY(bool, separateAxes);
-            //     DECLARE_BASIC_PROPERTY(UnityEngine::Vector2, range);
-            // } sizeBySpeed;
-
-            // struct {
-            //     DECLARE_BASIC_PROPERTY(bool, enabled);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, x);
-            //     DECLARE_BASIC_PROPERTY(float, xMultiplier);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, y);
-            //     DECLARE_BASIC_PROPERTY(float, yMultiplier);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, z);
-            //     DECLARE_BASIC_PROPERTY(float, zMultiplier);
-            //     DECLARE_BASIC_PROPERTY(bool, separateAxes);
-            // } rotationOverLifetime;
-
-            // struct {
-            //     DECLARE_BASIC_PROPERTY(bool, enabled);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, x);
-            //     DECLARE_BASIC_PROPERTY(float, xMultiplier);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, y);
-            //     DECLARE_BASIC_PROPERTY(float, yMultiplier);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, z);
-            //     DECLARE_BASIC_PROPERTY(float, zMultiplier);
-            //     DECLARE_BASIC_PROPERTY(bool, separateAxes);
-            //     DECLARE_BASIC_PROPERTY(UnityEngine::Vector2, range);
-            // } rotationBySpeed;
-
-            // struct {
-            //     DECLARE_BASIC_PROPERTY(bool, enabled);
-            //     DECLARE_BASIC_PROPERTY(float, multiplier);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, multiplierCurve);
-            //     DECLARE_BASIC_PROPERTY(GameObjectFilter, influenceFilter);
-            //     DECLARE_BASIC_PROPERTY(UnityEngine::LayerMask, influenceMask);
-            //     void GetInfluenceCount();
-            //     bool IsAffectedBy(ParticleControllerForceField field);
-            //     void AddInfluence(ParticleControllerForceField field);
-            //     void RemoveInfluenceAtIndex(int index);
-            //     void RemoveInfluence(ParticleControllerForceField field);
-            //     void RemoveAllInfluences();
-            //     void SetInfluence(int index, ParticleControllerForceField field);
-            //     ParticleControllerForceField GetInfluence(int index);
-            // } externalForces;
-
-            // struct {
-            //     DECLARE_BASIC_PROPERTY(bool, enabled);
-            //     DECLARE_BASIC_PROPERTY(bool, separateAxes);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, strength);
-            //     DECLARE_BASIC_PROPERTY(float, strengthMultiplier);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, strengthX);
-            //     DECLARE_BASIC_PROPERTY(float, strengthXMultiplier);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, strengthY);
-            //     DECLARE_BASIC_PROPERTY(float, strengthYMultiplier);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, strengthZ);
-            //     DECLARE_BASIC_PROPERTY(float, strengthZMultiplier);
-            //     DECLARE_BASIC_PROPERTY(float, frequency);
-            //     DECLARE_BASIC_PROPERTY(bool, damping);
-            //     DECLARE_BASIC_PROPERTY(int, octaveCount);
-            //     DECLARE_BASIC_PROPERTY(float, octaveMultiplier);
-            //     DECLARE_BASIC_PROPERTY(float, octaveScale);
-            //     DECLARE_BASIC_PROPERTY(NoiseQuality, quality);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, scrollSpeed);
-            //     DECLARE_BASIC_PROPERTY(float, scrollSpeedMultiplier);
-            //     DECLARE_BASIC_PROPERTY(bool, remapEnabled);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, remap);
-            //     DECLARE_BASIC_PROPERTY(float, remapMultiplier);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, remapX);
-            //     DECLARE_BASIC_PROPERTY(float, remapXMultiplier);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, remapY);
-            //     DECLARE_BASIC_PROPERTY(float, remapYMultiplier);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, remapZ);
-            //     DECLARE_BASIC_PROPERTY(float, remapZMultiplier);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, positionAmount);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, rotationAmount);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, sizeAmount);
-            // } noise;
-
-            // struct {            
-            //     DECLARE_BASIC_PROPERTY(bool, enabled);
-            //     DECLARE_BASIC_PROPERTY(float, ratio);
-            //     DECLARE_BASIC_PROPERTY(bool, useRandomDistribution);
-            //     DECLARE_BASIC_PROPERTY(UnityEngine::Light, light);
-            //     DECLARE_BASIC_PROPERTY(bool, useParticleColor);
-            //     DECLARE_BASIC_PROPERTY(bool, sizeAffectsRange);
-            //     DECLARE_BASIC_PROPERTY(bool, alphaAffectsIntensity);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, range);
-            //     DECLARE_BASIC_PROPERTY(float, rangeMultiplier);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, intensity);
-            //     DECLARE_BASIC_PROPERTY(float, intensityMultiplier);
-            //     DECLARE_BASIC_PROPERTY(int, maxLights);
-            // } lights;
-
-            // struct {
-            //     DECLARE_BASIC_PROPERTY(bool, enabled);
-            //     DECLARE_BASIC_PROPERTY(TrailMode, mode);
-            //     DECLARE_BASIC_PROPERTY(float, ratio);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, lifetime);
-            //     DECLARE_BASIC_PROPERTY(float, lifetimeMultiplier);
-            //     DECLARE_BASIC_PROPERTY(float, minVertexDistance);
-            //     DECLARE_BASIC_PROPERTY(TrailTextureMode, textureMode);
-            //     DECLARE_BASIC_PROPERTY(UnityEngine::Vector2, textureScale);
-            //     DECLARE_BASIC_PROPERTY(bool, worldSpace);
-            //     DECLARE_BASIC_PROPERTY(bool, dieWithParticles);
-            //     DECLARE_BASIC_PROPERTY(bool, sizeAffectsWidth);
-            //     DECLARE_BASIC_PROPERTY(bool, sizeAffectsLifetime);
-            //     DECLARE_BASIC_PROPERTY(bool, inheritParticleColor);
-            //     DECLARE_BASIC_PROPERTY(UnityEngine::ParticleSystem::MinMaxGradient, colorOverLifetime);
-            //     DECLARE_BASIC_PROPERTY(MinMaxCurve, widthOverTrail);
-            //     DECLARE_BASIC_PROPERTY(float, widthOverTrailMultiplier);
-            //     DECLARE_BASIC_PROPERTY(UnityEngine::ParticleSystem::MinMaxGradient, colorOverTrail);
-            //     DECLARE_BASIC_PROPERTY(bool, generateLightingData);
-            //     DECLARE_BASIC_PROPERTY(int, ribbonCount);
-            //     DECLARE_BASIC_PROPERTY(float, shadowBias);
-            //     DECLARE_BASIC_PROPERTY(bool, splitSubEmitterRibbons);
-            //     DECLARE_BASIC_PROPERTY(bool, attachRibbonsToTransform);
-            // } trails;
-
-            // struct {
-            //     DECLARE_BASIC_PROPERTY(bool, enabled);
+            //     DECLARE_FIELD_SETGET(bool, enabled);
             //     void SetMode(CustomData stream, CustomDataMode mode);
             //     CustomDataMode GetMode(CustomData stream);
             //     void SetVectorComponentCount(CustomData stream, int count);
