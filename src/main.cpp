@@ -12,8 +12,10 @@
 #include "UnityEngine/PrimitiveType.hpp"
 #include "UnityEngine/Resources.hpp"
 #include "bsml/shared/Helpers/utilities.hpp"
+#include "bsml/shared/BSML.hpp"
 
 #include "particleController.hpp"
+#include "testMenuViewController.hpp"
 
 static modloader::ModInfo modInfo{MOD_ID, VERSION, 0};
 // Stores the ID and version of our mod, and is sent to
@@ -73,7 +75,7 @@ MAKE_HOOK_MATCH(TestHook, &GlobalNamespace::MainMenuViewController::DidActivate,
     UnityEngine::ParticleSystem* particles = dustGo->GetComponent<UnityEngine::ParticleSystem*>();
 
     PaperLogger.info("startSizeMultiplier: {}", Flare::ParticleController::MainModule::get_startSizeMultiplier(particles));
-    Flare::ParticleController::MainModule::set_startSizeMultiplier(particles, Flare::ParticleController::MainModule::get_startSizeMultiplier(particles) * 10.0f);
+    Flare::ParticleController::MainModule::set_startSizeMultiplier(particles, Flare::ParticleController::MainModule::get_startSizeMultiplier(particles) * 0.0f);
 
     Flare::ParticleController::MinMaxCurve speed = Flare::ParticleController::MainModule::get_startSpeed(particles);
     LogMinMaxCurve(speed);
@@ -107,6 +109,9 @@ MOD_EXTERN_FUNC void setup(CModInfo *info) noexcept {
 MOD_EXTERN_FUNC void late_load() noexcept {
     il2cpp_functions::Init();
     custom_types::Register::AutoRegister();
+
+    BSML::Init();
+    BSML::Register::RegisterMainMenu<Flare::TestMenuViewController*>("Title", "Test button", "Hover hint");
 
     PaperLogger.info("Installing hooks...");
 

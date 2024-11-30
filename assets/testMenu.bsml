@@ -1,3 +1,14 @@
 <bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='https://raw.githubusercontent.com/RedBrumbler/Quest-BSML-Docs/gh-pages/schema.xsd'>
-    <!-- Your BSML Code here -->
+    <horizontal>
+        <vertical background="round-rect-panel" pad="2">
+            <button text="Test" underlined="true"></button>
+            <button text="Test" all-uppercase="false" italics="false" color="red" face-color="green" outline-color="blue"></button>
+            <primary-button text="Test" ></primary-button>
+            <button text="Test"></button>
+            <button text="Test"></button>
+        </vertical>
+        <vertical background="round-rect-panel">
+            
+        </vertical>
+    </horizontal>
 </bg>
