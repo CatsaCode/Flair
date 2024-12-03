@@ -90,6 +90,9 @@ MAKE_HOOK_MATCH(TestHook, &GlobalNamespace::MainMenuViewController::DidActivate,
     color.colorMax = UnityEngine::Color(1.0f, 0.0f, 0.0f, 1.0f);
     Flare::ParticleController::MainModule::set_startColor(particles, color);
     LogMinMaxGradient(color);
+
+    BSML::FloatingScreen* testMenuFloatingScreen = BSML::FloatingScreen::CreateFloatingScreenWithViewcontroller<Flare::TestMenuViewController*>(UnityEngine::Vector2(50.0f, 100.0f), true, UnityEngine::Vector3(0.0f, 1.0f, 3.0f), UnityEngine::Quaternion::Euler(UnityEngine::Vector3(0.0f, 0.0f, 0.0f)));
+    testMenuFloatingScreen->set_HandleSide(BSML::Side::Top);
 }
 
 

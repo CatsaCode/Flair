@@ -9,5 +9,8 @@ DEFINE_TYPE(Flare, TestMenuViewController);
 void Flare::TestMenuViewController::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
     if(!firstActivation) return;
     BSML::parse_and_construct(IncludedAssets::testMenu_bsml, transform, this);
-    fileWatcher->filePath = "sdcard/BSMLHotReload/Flare/testMenu.bsml";
+    #ifdef HotReload
+        fileWatcher->filePath = "sdcard/BSMLHotReload/Flare/testMenu.bsml";
+        fileWatcher->checkInterval = 1.0f;
+    #endif
 }

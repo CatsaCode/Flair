@@ -113,5 +113,13 @@
         "xtr1common": "cpp",
         "xtree": "cpp",
         "xutility": "cpp"
+    },
+    "emeraldwalk.runonsave": {
+        "commands": [
+            {
+                "match": ".*.bsml",
+                "cmd": "adb push ${file} /sdcard/BSMLHotReload/Flare/${fileBasename}"
+            }
+        ]
     }
 }
