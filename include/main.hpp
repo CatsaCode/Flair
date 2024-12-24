@@ -22,3 +22,5 @@
 Configuration &getConfig();
 
 constexpr auto PaperLogger = Paper::ConstLoggerContext("flare");
+
+void ApplySnowDust(); // DEBUG

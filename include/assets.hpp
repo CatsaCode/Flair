@@ -41,6 +41,7 @@ struct IncludedAsset {
     BSML::Utilities::LoadSpriteRaw(static_cast<ArrayW<uint8_t>>(IncludedAssets::name##_png))
 
 namespace IncludedAssets {
+    DECLARE_FILE(snowflakes_png)
     DECLARE_FILE(testMenu_bsml)
 }
 

@@ -57,7 +57,7 @@ namespace Flare {
             enum class StopAction {None, Disable, Destroy, Callback};
             enum class RingBufferMode {Disabled, PauseUntilReplaced, LoopUntilReplaced};
             enum class CullingMode {Automatic, PauseAndCatchup, Pause, AlwaysSimulate};
-            enum class ShapeType {Sphere, Hemisphere, Cone, Box, Mesh, ConeVolume, Circle, SingleSidedEdge, MeshRenderer, SkinnedMeshRenderer, BoxShell, BoxEdge, Donut, Rectangle, Sprite, SpriteRenderer};
+            enum class ShapeType {Sphere = 0, Hemisphere = 2, Cone = 4, Box = 5, Mesh = 6, ConeVolume = 8, Circle = 10, SingleSidedEdge = 12, MeshRenderer = 13, SkinnedMeshRenderer = 14, BoxShell = 15, BoxEdge = 16, Donut = 17, Rectangle = 18, Sprite = 19, SpriteRenderer = 20};
             enum class ShapeMultiModeValue {Random, Loop, PingPong, BurstSpread};
             enum class MeshShapeType {Vertex, Edge, Triangle};
             enum class ShapeTextureChannel {Red, Green, Blue, Alpha};
@@ -83,12 +83,38 @@ namespace Flare {
             enum class GradientMode {Color, Gradient, TwoColors, TwoGradients, RandomColor};
 
             struct MinMaxCurve {
-                CurveMode mode;
-                float curveMultiplier;
+                CurveMode mode = CurveMode::Constant;
+                float curveMultiplier = 0.0f;
                 UnityEngine::AnimationCurve* curveMin = nullptr;
                 UnityEngine::AnimationCurve* curveMax = nullptr;
-                float constantMin;
-                float constantMax;
+                float constantMin = 0.0f;
+                float constantMax = 0.0f;
+
+                MinMaxCurve() {}
+
+                MinMaxCurve(float constant) {
+                    mode = CurveMode::Constant;
+                    constantMax = constant;
+                }
+
+                MinMaxCurve(float multiplier, UnityEngine::AnimationCurve* curve) {
+                    mode = CurveMode::Curve;
+                    curveMultiplier = multiplier;
+                    curveMax = curve;
+                }
+
+                MinMaxCurve(float multiplier, UnityEngine::AnimationCurve* min, UnityEngine::AnimationCurve* max) {
+                    mode = CurveMode::TwoCurves;
+                    curveMultiplier = multiplier;
+                    curveMin = min;
+                    curveMax = max;
+                }
+
+                MinMaxCurve(float min, float max) {
+                    mode = CurveMode::TwoConstants;
+                    constantMin = min;
+                    constantMax = max;
+                }
             };
 
             struct MinMaxGradient {
