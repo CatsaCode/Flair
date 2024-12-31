@@ -15,7 +15,8 @@
 
 #include "paper/shared/logger.hpp"
 
-#include "_config.hpp"
+#define MOD_EXPORT __attribute__((visibility("default")))
+#define MOD_EXTERN_FUNC extern "C" MOD_EXPORT
 
 // Define these functions here so that we can easily read configuration and
 // log information from other files
