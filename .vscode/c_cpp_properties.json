@@ -2,7 +2,7 @@
   "configurations": [
     {
       "defines": [
-        "MOD_ID=\"flare\"",
+        "MOD_ID=\"flair\"",
         "VERSION=\"0.1.0\"",
         "__GNUC__",
         "__aarch64__"

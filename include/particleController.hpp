@@ -19,7 +19,7 @@
 #include "UnityEngine/AnimationCurve.hpp"
 #include "UnityEngine/Gradient.hpp"
 #include "UnityEngine/Color.hpp"
-#include "UnityEngine/ParticleSystem.hpp" // MinMaxCurve & MinMaxGradient (may recreate as a ParticleController struct)
+#include "UnityEngine/ParticleSystem.hpp"
 
 namespace UnityEngine::Rendering {
     enum UVChannelFlags {UV0 = 1, UV1 = 2, UV2 = 4, UV3 = 8};
@@ -29,7 +29,7 @@ namespace UnityEngine::Rendering {
 static type get_##name(UnityEngine::ParticleSystem* particleSystem); \
 static void set_##name(UnityEngine::ParticleSystem* particleSystem, type value);
 
-// DECLARE_CLASS_CODEGEN(Flare, ParticleSystemForceField, UnityEngine::Behaviour, 
+// DECLARE_CLASS_CODEGEN(Flair, ParticleSystemForceField, UnityEngine::Behaviour, 
 //     public:
 //         enum class ForceFieldShape {Sphere, Hemisphere, Cylinder, Box};
 
@@ -45,8 +45,8 @@ static void set_##name(UnityEngine::ParticleSystem* particleSystem, type value);
 //         DECLARE_FIELD_SETGET(UnityEngine::ParticleSystem::MinMaxCurve, vectorFieldAttraction);
 // );
 
-// DECLARE_CLASS_CODEGEN(Flare, ParticleController, UnityEngine::MonoBehaviour,
-namespace Flare {
+// DECLARE_CLASS_CODEGEN(Flair, ParticleController, UnityEngine::MonoBehaviour,
+namespace Flair {
 
     class ParticleController {
         public:

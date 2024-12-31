@@ -3,12 +3,12 @@
   "sharedDir": "shared",
   "dependenciesDir": "extern",
   "info": {
-    "name": "Flare",
-    "id": "flare",
+    "name": "Flair",
+    "id": "flair",
     "version": "0.1.0",
     "url": null,
     "additionalData": {
-      "overrideSoName": "libflare.so",
+      "overrideSoName": "libflair.so",
       "cmake": true
     }
   },
@@ -45,7 +45,7 @@
       "./extern/libs"
     ],
     "qmodIncludeFiles": [],
-    "qmodOutput": "./Flare.qmod"
+    "qmodOutput": "./Flair.qmod"
   },
   "dependencies": [
     {

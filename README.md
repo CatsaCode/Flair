@@ -1,4 +1,4 @@
-# Flare
+# Flair
 
 Create custom particle systems
 

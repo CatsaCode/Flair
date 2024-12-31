@@ -35,8 +35,8 @@ on:
         - 'fix/*'
 
 env:
-    module_id: "flare"
-    qmod_name: "Flare"
+    module_id: "flair"
+    qmod_name: "Flair"
 
 jobs:
   build:

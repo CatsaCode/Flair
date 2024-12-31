@@ -118,7 +118,7 @@
         "commands": [
             {
                 "match": ".*.bsml",
-                "cmd": "adb push ${file} /sdcard/BSMLHotReload/Flare/${fileBasename}"
+                "cmd": "adb push ${file} /sdcard/BSMLHotReload/Flair/${fileBasename}"
             }
         ]
     }

@@ -21,6 +21,4 @@
 // log information from other files
 Configuration &getConfig();
 
-constexpr auto PaperLogger = Paper::ConstLoggerContext("flare");
-
-void ApplySnowDust(); // DEBUG
+constexpr auto PaperLogger = Paper::ConstLoggerContext("flair");
