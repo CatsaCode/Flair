@@ -118,11 +118,35 @@ namespace Flair {
             };
 
             struct MinMaxGradient {
-                GradientMode mode;
-                UnityEngine::Gradient* gradientMin;
-                UnityEngine::Gradient* gradientMax;
-                UnityEngine::Color colorMin;
-                UnityEngine::Color colorMax;
+                GradientMode mode = GradientMode::Color;
+                UnityEngine::Gradient* gradientMin = nullptr;
+                UnityEngine::Gradient* gradientMax = nullptr;
+                UnityEngine::Color colorMin = UnityEngine::Color(0, 0, 0, 1);
+                UnityEngine::Color colorMax = UnityEngine::Color(0, 0, 0, 1);
+
+                MinMaxGradient() {}
+
+                MinMaxGradient(UnityEngine::Color color) {
+                    mode = GradientMode::Color;
+                    colorMax = color;
+                }
+
+                MinMaxGradient(UnityEngine::Gradient* gradient) {
+                    mode = GradientMode::Gradient;
+                    gradientMax = gradient;
+                }
+
+                MinMaxGradient(UnityEngine::Color min, UnityEngine::Color max) {
+                    mode = GradientMode::TwoColors;
+                    colorMin = min;
+                    colorMax = max;
+                }
+
+                MinMaxGradient(UnityEngine::Gradient* min, UnityEngine::Gradient* max) {
+                    mode = GradientMode::TwoGradients;
+                    gradientMin = min;
+                    gradientMax = max;
+                }
             };
 
             struct Burst {
@@ -566,3 +590,5 @@ namespace Flair {
     };
 
 }
+
+#undef DECLARE_FIELD_SETGET
