@@ -4,6 +4,13 @@
 #include "custom-types/shared/register.hpp"
 #include "bsml/shared/BSML.hpp"
 
+
+// DEBUG
+#include "GlobalNamespace/MainMenuViewController.hpp"
+#include "Windows/mainModuleWindow.hpp"
+#include "UnityEngine/Resources.hpp"
+
+
 static modloader::ModInfo modInfo{MOD_ID, VERSION, 0};
 // Stores the ID and version of our mod, and is sent to
 // the modloader upon startup
@@ -14,6 +21,29 @@ static modloader::ModInfo modInfo{MOD_ID, VERSION, 0};
 Configuration &getConfig() {
     static Configuration config(modInfo);
     return config;
+}
+
+
+MAKE_HOOK_MATCH(TestHook, &GlobalNamespace::MainMenuViewController::DidActivate, void, GlobalNamespace::MainMenuViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+    TestHook(self, firstActivation, addedToHierarchy, screenSystemEnabling);
+
+    if(!firstActivation) return;
+
+    UnityEngine::ParticleSystem* dustParticleSystem = nullptr;
+    for(auto particle : UnityEngine::Resources::FindObjectsOfTypeAll<UnityEngine::ParticleSystem*>()) if(particle->name == "DustPS") {
+        dustParticleSystem = particle;
+        break;
+    }
+    if(dustParticleSystem == nullptr) {
+        PaperLogger.error("Could not find DustPS");
+        return;
+    }
+
+    BSML::FloatingScreen* testFloatingScreen = BSML::FloatingScreen::CreateFloatingScreenWithViewcontroller<Flair::Windows::MainModuleWindow*>(UnityEngine::Vector2(100.0f, 100.0f), true, UnityEngine::Vector3(0.0f, 2.0f, 2.0f), UnityEngine::Quaternion::Euler(UnityEngine::Vector3(0.0f, 0.0f, 0.0f)), 0.0f, false);
+    testFloatingScreen->set_HandleSide(BSML::Side::Top);
+    Flair::Windows::MainModuleWindow* testWindow = reinterpret_cast<Flair::Windows::MainModuleWindow*>(testFloatingScreen->_rootViewController.ptr());
+    testWindow->controlledParticleSystem = dustParticleSystem;
+    // testWindow->RefreshUI();
 }
 
 
@@ -38,7 +68,7 @@ MOD_EXTERN_FUNC void late_load() noexcept {
 
     PaperLogger.info("Installing hooks...");
 
-
+    INSTALL_HOOK(PaperLogger, TestHook);
 
     PaperLogger.info("Installed all hooks!");
 }

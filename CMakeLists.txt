@@ -1,5 +1,5 @@
 # Uncomment this to enable UI hot reloading
-add_compile_options(-DHotReload)
+add_compile_options(-DHOT_RELOAD)
 
 cmake_minimum_required(VERSION 3.22)
 
