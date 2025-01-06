@@ -7,8 +7,10 @@
 
 // DEBUG
 #include "GlobalNamespace/MainMenuViewController.hpp"
-#include "Windows/mainModuleWindow.hpp"
 #include "UnityEngine/Resources.hpp"
+#include "UnityEngine/ParticleSystem.hpp"
+#include "Window/window.hpp"
+#include "Window/createModuleWindows.hpp"
 
 
 static modloader::ModInfo modInfo{MOD_ID, VERSION, 0};
@@ -27,10 +29,11 @@ Configuration &getConfig() {
 MAKE_HOOK_MATCH(TestHook, &GlobalNamespace::MainMenuViewController::DidActivate, void, GlobalNamespace::MainMenuViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
     TestHook(self, firstActivation, addedToHierarchy, screenSystemEnabling);
 
-    if(!firstActivation) return;
+    // if(!firstActivation) return;
 
-    UnityEngine::ParticleSystem* dustParticleSystem = nullptr;
-    for(auto particle : UnityEngine::Resources::FindObjectsOfTypeAll<UnityEngine::ParticleSystem*>()) if(particle->name == "DustPS") {
+    static UnityEngine::ParticleSystem* dustParticleSystem = nullptr;
+
+    if(dustParticleSystem == nullptr) for(auto particle : UnityEngine::Resources::FindObjectsOfTypeAll<UnityEngine::ParticleSystem*>()) if(particle->name == "DustPS") {
         dustParticleSystem = particle;
         break;
     }
@@ -39,11 +42,8 @@ MAKE_HOOK_MATCH(TestHook, &GlobalNamespace::MainMenuViewController::DidActivate,
         return;
     }
 
-    BSML::FloatingScreen* testFloatingScreen = BSML::FloatingScreen::CreateFloatingScreenWithViewcontroller<Flair::Windows::MainModuleWindow*>(UnityEngine::Vector2(100.0f, 100.0f), true, UnityEngine::Vector3(0.0f, 2.0f, 2.0f), UnityEngine::Quaternion::Euler(UnityEngine::Vector3(0.0f, 0.0f, 0.0f)), 0.0f, false);
-    testFloatingScreen->set_HandleSide(BSML::Side::Top);
-    Flair::Windows::MainModuleWindow* testWindow = reinterpret_cast<Flair::Windows::MainModuleWindow*>(testFloatingScreen->_rootViewController.ptr());
-    testWindow->controlledParticleSystem = dustParticleSystem;
-    // testWindow->RefreshUI();
+    if(rand() % 2 == 0) Flair::Window::CreateWindow(nullptr, "Test Window", {40, 100});
+    else Flair::Window::CreateMainModuleWindow(nullptr, dustParticleSystem);
 }
 
 
@@ -65,6 +65,9 @@ MOD_EXTERN_FUNC void late_load() noexcept {
     custom_types::Register::AutoRegister();
 
     BSML::Init();
+
+    // Set a seed for random numbers
+    srand(time(nullptr));
 
     PaperLogger.info("Installing hooks...");
 
