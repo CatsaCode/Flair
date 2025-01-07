@@ -31,13 +31,12 @@ namespace Flair::Window {
     void Window::Update() {
         if(!tempHandle) return;
 
-        static SafePtrUnity<RectTransform> rectTransform;
-        if(!rectTransform) rectTransform = GetComponent<RectTransform*>();
-        if(!rectTransform) {PaperLogger.error("Window::Update() - Could not get RectTransform"); return;};
+        if(!_rectTransform) _rectTransform = GetComponent<RectTransform*>();
+        if(!_rectTransform) {PaperLogger.error("Window::Update() - Could not get RectTransform"); return;};
 
         get_transform()->set_position(tempHandle->handle->get_transform()->get_position());
         get_transform()->set_rotation(tempHandle->handle->get_transform()->get_rotation());
-        get_transform()->Translate({0, -rectTransform->get_sizeDelta().y * 0.0031f, 0}, get_transform());
+        get_transform()->Translate({0, -_rectTransform->get_sizeDelta().y * 0.0031f, 0}, get_transform());
     }
 
     // Destroy the window object
@@ -49,11 +48,10 @@ namespace Flair::Window {
     // Call ContentSizeFitter::SetDirty() so that the window's size is recalculated
     void Window::SetDirty() {
         // TODO Explore LayoutRebuilder https://github.com/Metalit/Qounters/blob/89c83517083aee1f33fb67813c5cc07266beec0c/src/utils.cpp#L599
-        static SafePtrUnity<ContentSizeFitter> fitter; // TODO Don't make this static, it's shared among all instances of Window
-        if(!fitter) fitter = GetComponent<ContentSizeFitter*>();
-        if(!fitter) {PaperLogger.error("Window::SetDirty() - Could not get ContentSizeFitter"); return;};
+        if(!_fitter) _fitter = GetComponent<ContentSizeFitter*>();
+        if(!_fitter) {PaperLogger.error("Window::SetDirty() - Could not get ContentSizeFitter"); return;};
 
-        fitter->SetDirty();
+        _fitter->SetDirty();
     }
     void Window::SetDirty(bool nextFrame) {
         if(nextFrame) BSML::MainThreadScheduler::ScheduleNextFrame([this](){SetDirty();});
@@ -63,10 +61,10 @@ namespace Flair::Window {
         BSML::MainThreadScheduler::ScheduleAfterTime(delaySeconds, [this](){SetDirty();});
     }
 
-    Window* CreateWindow(Window* parent, std::string name, Vector2 size) {
+    Window* CreateWindow(Window* parent, std::string title, Vector2 size) {
         // Create canvas
         GameObject* windowCanvas = BSML::Lite::CreateCanvas();
-        windowCanvas->set_name("FlairWindow");
+        windowCanvas->set_name("FlairWindow \"" + title + "\"");
         
         // Set scale of the pixels
         float canvasScale = windowCanvas->get_transform()->get_localScale().x * windowScale;
@@ -77,7 +75,7 @@ namespace Flair::Window {
 
         // Create child-parent link
         window->parentWindow = parent;
-        if(parent) parent->childWindows.push_back(window);
+        if(parent) parent->childWindows->Add(window);
 
         // DEBUG Create temporary handle
         BSML::FloatingScreen* floatingScreen = BSML::FloatingScreen::CreateFloatingScreen({20, 20}, true, {0, 2, 2}, Quaternion::Euler({0, 0, 0}));
