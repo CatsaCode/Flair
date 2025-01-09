@@ -1,9 +1,5 @@
 #pragma once
 
-#include "custom-types/shared/macros.hpp"
-
-#include "UnityEngine/MonoBehaviour.hpp"
-
 #include "UnityEngine/Vector2.hpp"
 #include "UnityEngine/Vector3.hpp"
 #include "UnityEngine/Transform.hpp"
@@ -45,10 +41,10 @@ static void set_##name(UnityEngine::ParticleSystem* particleSystem, type value);
 //         DECLARE_FIELD_SETGET(UnityEngine::ParticleSystem::MinMaxCurve, vectorFieldAttraction);
 // );
 
-// DECLARE_CLASS_CODEGEN(Flair, ParticleController, UnityEngine::MonoBehaviour,
+// DECLARE_CLASS_CODEGEN(Flair, ParticleInterface, UnityEngine::MonoBehaviour,
 namespace Flair {
 
-    class ParticleController {
+    class ParticleInterface {
         public:
             enum class GravitySource {Physics3D, Physics2D};
             enum class SimulationSpace {Local, World, Custom};
@@ -492,13 +488,13 @@ namespace Flair {
             //     DECLARE_FIELD_SETGET(GameObjectFilter, influenceFilter);
             //     DECLARE_FIELD_SETGET(UnityEngine::LayerMask, influenceMask);
             //     int get_influenceCount(UnityEngine::ParticleSystem* particleSystem);
-            //     bool IsAffectedBy(UnityEngine::ParticleSystem* particleSystem, ParticleControllerForceField field);
-            //     void AddInfluence(UnityEngine::ParticleSystem* particleSystem, ParticleControllerForceField field);
+            //     bool IsAffectedBy(UnityEngine::ParticleSystem* particleSystem, ParticleInterfaceForceField field);
+            //     void AddInfluence(UnityEngine::ParticleSystem* particleSystem, ParticleInterfaceForceField field);
             //     void RemoveInfluenceAtIndex(UnityEngine::ParticleSystem* particleSystem, int index);
-            //     void RemoveInfluence(UnityEngine::ParticleSystem* particleSystem, ParticleControllerForceField field);
+            //     void RemoveInfluence(UnityEngine::ParticleSystem* particleSystem, ParticleInterfaceForceField field);
             //     void RemoveAllInfluences(UnityEngine::ParticleSystem* particleSystem);
-            //     void SetInfluence(UnityEngine::ParticleSystem* particleSystem, int index, ParticleControllerForceField field);
-            //     ParticleControllerForceField GetInfluence(UnityEngine::ParticleSystem* particleSystem, int index);
+            //     void SetInfluence(UnityEngine::ParticleSystem* particleSystem, int index, ParticleInterfaceForceField field);
+            //     ParticleInterfaceForceField GetInfluence(UnityEngine::ParticleSystem* particleSystem, int index);
             // };
 
             struct NoiseModule {

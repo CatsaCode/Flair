@@ -2,7 +2,6 @@
 #include "main.hpp"
 
 #include "Window/createSettings.hpp"
-#include "particleController.hpp" // DEBUG
 
 #include "bsml/shared/BSML.hpp"
 #include "bsml/shared/BSML/Components/Backgroundable.hpp"

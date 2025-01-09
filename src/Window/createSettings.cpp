@@ -1,7 +1,7 @@
 #include "Window/createSettings.hpp"
 #include "main.hpp"
 
-#include "particleController.hpp"
+#include "particleInterface.hpp"
 
 #include "bsml/shared/BSML.hpp"
 
@@ -80,7 +80,7 @@ namespace Flair::Window {
     }
 
     // Create a MinMaxCurve setting for a window
-    GameObject* CreateMinMaxCurveSetting(Transform* parent, std::string name, std::string hoverHint, ParticleController::MinMaxCurve startValue, std::function<void(ParticleController::MinMaxCurve value)> onChange) {
+    GameObject* CreateMinMaxCurveSetting(Transform* parent, std::string name, std::string hoverHint, ParticleInterface::MinMaxCurve startValue, std::function<void(ParticleInterface::MinMaxCurve value)> onChange) {
         // TODO Create a MinMaxCurveWindow
 
         // Set up the function that converts the typed float into a MinMaxCurve for the provided onChange function
@@ -96,7 +96,7 @@ namespace Flair::Window {
     }
 
     // Create a MinMaxGradient setting for a window
-    GameObject* CreateMinMaxGradientSetting(UnityEngine::Transform* parent, std::string name, std::string hoverHint, ParticleController::MinMaxGradient startValue, std::function<void(ParticleController::MinMaxGradient)> onChange) {
+    GameObject* CreateMinMaxGradientSetting(UnityEngine::Transform* parent, std::string name, std::string hoverHint, ParticleInterface::MinMaxGradient startValue, std::function<void(ParticleInterface::MinMaxGradient)> onChange) {
         // TODO Create a MinMaxGradientWindow
 
         // Set up the function that converts the single color into a MinMaxCurve for the provided onChange function
