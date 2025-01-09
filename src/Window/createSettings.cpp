@@ -16,7 +16,7 @@ using namespace UnityEngine::UI;
 
 namespace Flair::Window {
 
-    // Create a toggle setting for a window
+    // Create a toggle setting for a Window
     GameObject* CreateBoolSetting(Transform* parent, std::string name, std::string hoverHint, bool startValue, std::function<void(bool)> onChange) {
         // Create object from BSML template
         auto boolSetting = BSML::Lite::CreateToggle(parent, name, startValue, onChange);
@@ -27,7 +27,7 @@ namespace Flair::Window {
         return boolSetting->get_gameObject();
     }
 
-    // Create a float setting for a window
+    // Create a float setting for a Window
     GameObject* CreateFloatSetting(Transform* parent, std::string name, std::string hoverHint, float startValue, std::function<void(float)> onChange) {
         // Convert startValue to a string without the trailing zeros
         std::stringstream startValueSS;
@@ -79,7 +79,7 @@ namespace Flair::Window {
         return floatSetting->get_gameObject();
     }
 
-    // Create a MinMaxCurve setting for a window
+    // Create a MinMaxCurve setting for a Window
     GameObject* CreateMinMaxCurveSetting(Transform* parent, std::string name, std::string hoverHint, ParticleInterface::MinMaxCurve startValue, std::function<void(ParticleInterface::MinMaxCurve value)> onChange) {
         // TODO Create a MinMaxCurveWindow
 
@@ -95,7 +95,30 @@ namespace Flair::Window {
         return minMaxCurveSetting->get_gameObject();
     }
 
-    // Create a MinMaxGradient setting for a window
+    // Create an X, Y, and Z MinMaxCurve setting for a Window
+    GameObject* Create3DMinMaxCurveSetting(Transform* parent, std::string name, std::string hoverHint, ParticleInterface::MinMaxCurve startValueX, std::function<void(ParticleInterface::MinMaxCurve)> onChangeX, ParticleInterface::MinMaxCurve startValueY, std::function<void(ParticleInterface::MinMaxCurve)> onChangeY, ParticleInterface::MinMaxCurve startValueZ, std::function<void(ParticleInterface::MinMaxCurve)> onChangeZ) {
+        // Create a container for the three MinMaxCurveSettings
+        auto row = GameObject::New_ctor("3DMinMaxCurveSetting");
+        row->get_transform()->SetParent(parent->get_transform(), false);
+        auto rowTransform = row->AddComponent<RectTransform*>();
+        // Set a constant height, same as the BSML string input
+        rowTransform->set_sizeDelta({0, 8});
+        // Evenly space child objects, don't try to control their height
+        auto rowLayout = row->AddComponent<HorizontalLayoutGroup*>();
+        rowLayout->set_childControlWidth(true);
+        rowLayout->set_childControlHeight(false);
+
+        // TODO Add name
+
+        // Add each of the MinMaxCurveSettings to the row
+        CreateMinMaxCurveSetting(row->get_transform(), "", "", startValueX, onChangeX);
+        CreateMinMaxCurveSetting(row->get_transform(), "", "", startValueY, onChangeY);
+        CreateMinMaxCurveSetting(row->get_transform(), "", "", startValueZ, onChangeZ);
+
+        return row;
+    }
+
+    // Create a MinMaxGradient setting for a Window
     GameObject* CreateMinMaxGradientSetting(UnityEngine::Transform* parent, std::string name, std::string hoverHint, ParticleInterface::MinMaxGradient startValue, std::function<void(ParticleInterface::MinMaxGradient)> onChange) {
         // TODO Create a MinMaxGradientWindow
 
