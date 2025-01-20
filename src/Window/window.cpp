@@ -4,10 +4,15 @@
 #include "Window/createSettings.hpp"
 
 #include "bsml/shared/BSML.hpp"
-#include "bsml/shared/BSML/Components/Backgroundable.hpp"
 #include "bsml/shared/BSML/MainThreadScheduler.hpp"
+#include "bsml/shared/BSML/Components/Backgroundable.hpp"
+#include "bsml/shared/Helpers/getters.hpp"
+
+#include "VRUIControls/VRUIControls.hpp"
 
 #include "HMUI/ImageView.hpp"
+#include "HMUI/Screen.hpp"
+#include "HMUI/Touchable.hpp"
 
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/RectOffset.hpp"
@@ -69,6 +74,11 @@ namespace Flair::Window {
         float canvasScale = windowCanvas->get_transform()->get_localScale().x * windowScale;
         windowCanvas->get_transform()->set_localScale({canvasScale, canvasScale, canvasScale});
 
+        // Add a HMUI::Screen for modal support TODO Figure out what HMUI::Screen actually is lol
+        windowCanvas->AddComponent<HMUI::Screen*>();
+        // TODO Figure out what this does lol
+        windowCanvas->GetComponent<VRUIControls::VRGraphicRaycaster*>()->_physicsRaycaster = BSML::Helpers::GetPhysicsRaycasterWithCache();
+
         // Set up Window component
         Window* window = windowCanvas->AddComponent<Window*>();
 
@@ -86,6 +96,7 @@ namespace Flair::Window {
         const float titleBarPadding = 1;
         windowCanvas->GetComponent<RectTransform*>()->set_sizeDelta({size.x, size.y + titleBarHeight});
 
+        // Create a VerticalLayoutGroup to get the total height of the window
         auto windowCanvasVertical = windowCanvas->AddComponent<VerticalLayoutGroup*>();
         windowCanvasVertical->set_childControlWidth(true); // Scale titleBar and body to the same width
         windowCanvasVertical->set_childControlHeight(false); // Don't control children, just passively get their height information
@@ -125,7 +136,7 @@ namespace Flair::Window {
             if(imageView->get_name() == "Underline") GameObject::Destroy(imageView->get_gameObject());
         }
 
-        // Add a GameObject that will house the objects in the titleBar
+        // Add a GameObject that will house the objects in the main section of the Window
         window->body = GameObject::New_ctor("Body");
         window->body->get_transform()->SetParent(windowCanvas->get_transform(), false);
         auto bodyTransform = window->body->AddComponent<RectTransform*>();
