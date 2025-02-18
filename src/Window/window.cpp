@@ -3,6 +3,8 @@
 
 #include "Window/createSettings.hpp"
 
+#include "UI/utils.hpp"
+
 #include "bsml/shared/BSML.hpp"
 #include "bsml/shared/BSML/MainThreadScheduler.hpp"
 #include "bsml/shared/BSML/Components/Backgroundable.hpp"
@@ -13,6 +15,7 @@
 #include "HMUI/ImageView.hpp"
 #include "HMUI/Screen.hpp"
 #include "HMUI/Touchable.hpp"
+#include "HMUI/CurvedCanvasSettings.hpp"
 
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/RectOffset.hpp"
@@ -22,40 +25,40 @@
 #include "UnityEngine/UI/LayoutElement.hpp"
 #include "UnityEngine/UI/LayoutGroup.hpp"
 
-const float windowScale = 0.2f;
-
 DEFINE_TYPE(Flair::Window, Window);
 
 using namespace UnityEngine;
 using namespace UnityEngine::UI;
+using namespace HMUI;
 
 namespace Flair::Window {
+
+    const float windowScale = 0.2f;
+    const float windowTitleBarHeight = 6;
+    const int windowPadding = 2;
 
     // DEBUG
     void Window::Update() {
         if(!tempHandle) return;
 
-        if(!_rectTransform) _rectTransform = GetComponent<RectTransform*>();
-        if(!_rectTransform) {PaperLogger.error("Window::Update() - Could not get RectTransform"); return;};
-
         get_transform()->set_position(tempHandle->handle->get_transform()->get_position());
         get_transform()->set_rotation(tempHandle->handle->get_transform()->get_rotation());
-        get_transform()->Translate({0, -_rectTransform->get_sizeDelta().y * 0.0031f, 0}, get_transform());
+        get_transform()->Translate({0, -0.01f, 0}, get_transform());
     }
 
-    // Destroy the window object
     void Window::Close() {
         if(tempHandle) GameObject::Destroy(tempHandle->get_gameObject());
         GameObject::Destroy(get_gameObject());
     }
 
-    // Call ContentSizeFitter::SetDirty() so that the window's size is recalculated
     void Window::SetDirty() {
         // TODO Explore LayoutRebuilder https://github.com/Metalit/Qounters/blob/89c83517083aee1f33fb67813c5cc07266beec0c/src/utils.cpp#L599
-        if(!_fitter) _fitter = GetComponent<ContentSizeFitter*>();
-        if(!_fitter) {PaperLogger.error("Window::SetDirty() - Could not get ContentSizeFitter"); return;};
+        if(!_mainContainerFitter) _mainContainerFitter = mainContainer->GetComponent<ContentSizeFitter*>();
+        _mainContainerFitter->SetDirty();
 
-        _fitter->SetDirty();
+        if(!_canvasTransform) _canvasTransform = get_transform()->Find("Canvas")->GetComponent<RectTransform*>();
+        if(!_mainContainerTransform) _mainContainerTransform = mainContainer->GetComponent<RectTransform*>();
+        _canvasTransform->set_sizeDelta(_mainContainerTransform->get_rect().get_size());
     }
     void Window::SetDirty(bool nextFrame) {
         if(nextFrame) BSML::MainThreadScheduler::ScheduleNextFrame([this](){SetDirty();});
@@ -66,89 +69,88 @@ namespace Flair::Window {
     }
 
     Window* CreateWindow(Window* parent, std::string title, Vector2 size) {
-        // Create canvas
-        GameObject* windowCanvas = BSML::Lite::CreateCanvas();
-        windowCanvas->set_name("FlairWindow \"" + title + "\"");
-        
-        // Set scale of the pixels
-        float canvasScale = windowCanvas->get_transform()->get_localScale().x * windowScale;
-        windowCanvas->get_transform()->set_localScale({canvasScale, canvasScale, canvasScale});
-
-        // Add a HMUI::Screen for modal support TODO Figure out what HMUI::Screen actually is lol
-        windowCanvas->AddComponent<HMUI::Screen*>();
-        // TODO Figure out what this does lol
-        windowCanvas->GetComponent<VRUIControls::VRGraphicRaycaster*>()->_physicsRaycaster = BSML::Helpers::GetPhysicsRaycasterWithCache();
-
-        // Set up Window component
-        Window* window = windowCanvas->AddComponent<Window*>();
-
-        // Create child-parent link
+        GameObject* windowGO = GameObject::New_ctor("FlairWindow \"" + title + "\"");
+        Transform* windowTransform = windowGO->get_transform();
+        Window* window = windowGO->AddComponent<Window*>();
         window->parentWindow = parent;
         if(parent) parent->childWindows->Add(window);
 
-        // DEBUG Create temporary handle
         BSML::FloatingScreen* floatingScreen = BSML::FloatingScreen::CreateFloatingScreen({20, 20}, true, {0, 2, 2}, Quaternion::Euler({0, 0, 0}));
         floatingScreen->set_HandleSide(BSML::Side::Top);
         window->tempHandle = floatingScreen;
 
-        // Set size of the window
-        const float titleBarHeight = 8;
-        const float titleBarPadding = 1;
-        windowCanvas->GetComponent<RectTransform*>()->set_sizeDelta({size.x, size.y + titleBarHeight});
+        GameObject* canvasGO = BSML::Lite::CreateCanvas();
+        canvasGO->set_name("Canvas");
+        RectTransform* canvasTransform = canvasGO->GetComponent<RectTransform*>();
+        canvasTransform->SetParent(windowTransform, false);
+        canvasTransform->set_anchorMin({0, 0});
+        canvasTransform->set_anchorMax({0, 0});
+        canvasTransform->set_pivot({0.5, 1});
+        canvasTransform->set_anchoredPosition({0, 0});
+        canvasTransform->set_sizeDelta({0, 0});
+        float canvasScale = canvasTransform->get_localScale().x * windowScale;
+        canvasTransform->set_localScale({canvasScale, canvasScale, canvasScale});
+        canvasGO->AddComponent<Screen*>();
+        canvasGO->GetComponent<VRUIControls::VRGraphicRaycaster*>()->_physicsRaycaster = BSML::Helpers::GetPhysicsRaycasterWithCache();
+        canvasGO->AddComponent<CurvedCanvasSettings*>()->SetRadius(0);
 
-        // Create a VerticalLayoutGroup to get the total height of the window
-        auto windowCanvasVertical = windowCanvas->AddComponent<VerticalLayoutGroup*>();
-        windowCanvasVertical->set_childControlWidth(true); // Scale titleBar and body to the same width
-        windowCanvasVertical->set_childControlHeight(false); // Don't control children, just passively get their height information
-        // Update windowCanvas's RectTransform to fit both the titleBar and the body
-        auto windowCanvasFitter = windowCanvas->AddComponent<ContentSizeFitter*>();
-        windowCanvasFitter->set_verticalFit(__ContentSizeFitter__FitMode::PreferredSize);
+        GameObject* mainContainerGO = GameObject::New_ctor("MainContainer");
+        window->mainContainer = mainContainerGO;
+        RectTransform* mainContainerTransform = mainContainerGO->AddComponent<RectTransform*>();
+        mainContainerTransform->SetParent(canvasTransform, false);
+        mainContainerTransform->set_anchorMin({0.5, 1});
+        mainContainerTransform->set_anchorMax({0.5, 1});
+        mainContainerTransform->set_pivot({0.5, 1});
+        mainContainerTransform->set_anchoredPosition({0, 0});
+        mainContainerTransform->set_sizeDelta(size);
+        VerticalLayoutGroup* mainContainerLayoutG = mainContainerGO->AddComponent<VerticalLayoutGroup*>();
+        mainContainerLayoutG->set_childControlWidth(true);
+        mainContainerLayoutG->set_childControlHeight(false);
+        mainContainerLayoutG->set_padding(RectOffset::New_ctor(windowPadding, windowPadding, windowPadding, windowPadding));
+        mainContainerLayoutG->set_spacing(windowPadding);
+        ContentSizeFitter* mainContainerFitter = mainContainerGO->AddComponent<ContentSizeFitter*>();
+        mainContainerFitter->set_verticalFit(__ContentSizeFitter__FitMode::PreferredSize);
+        mainContainerGO->AddComponent<BSML::Backgroundable*>()->ApplyBackground("round-rect-panel");
+        mainContainerGO->AddComponent<Touchable*>(); // TODO Disappears?
 
-        // Give the window a background
-        windowCanvas->AddComponent<BSML::Backgroundable*>()->ApplyBackground("round-rect-panel");
+        GameObject* titleBarGO = GameObject::New_ctor("TitleBar");
+        RectTransform* titleBarTransform = titleBarGO->AddComponent<RectTransform*>();
+        titleBarTransform->SetParent(mainContainerTransform, false);
+        titleBarTransform->set_sizeDelta({-1, windowTitleBarHeight});
 
-        // Add a GameObject that will house the objects in the titleBar
-        auto titleBar = GameObject::New_ctor("TitleBar");
-        titleBar->get_transform()->SetParent(windowCanvas->get_transform(), false);
-        auto titleBarTransform = titleBar->AddComponent<RectTransform*>();
-        titleBarTransform->set_sizeDelta({-1, titleBarHeight}); // Width is automatic from windowCanvasVertical
+        CurvedTextMeshPro* titleText = BSML::Lite::CreateText(titleBarTransform, title, {0, 0}, {0, 0});
+        titleText->set_name("TitleText");
+        titleText->set_horizontalAlignment(TMPro::HorizontalAlignmentOptions::Left);
+        titleText->set_verticalAlignment(TMPro::VerticalAlignmentOptions::Middle);
+        titleText->set_fontSize(4);
+        titleText->set_overflowMode(TMPro::TextOverflowModes::Ellipsis);
+        Object::DestroyImmediate(titleText->GetComponent<LayoutElement*>());
+        RectTransform* titleTransform = titleText->GetComponent<RectTransform*>();
+        titleTransform->set_anchorMin({0, 0});
+        titleTransform->set_anchorMax({0.8, 1});
+        titleTransform->set_pivot({0, 0.5});
+        titleTransform->set_anchoredPosition({0, 0});
+        titleTransform->set_sizeDelta({0, 0});
 
-        // Create close button
-        // Start with BSML template
-        auto closeButton = BSML::Lite::CreateUIButton(titleBar->get_transform(), "X", [window](){window->Close();});
-        // Remove padding so the button can be completely square
-        auto closeButtonLayoutG = closeButton->GetComponent<LayoutGroup*>();
-        closeButtonLayoutG->set_padding(RectOffset::New_ctor(0, 0, 0, 0));
-        // Set the size of the button
-        auto closeButtonLayoutE = closeButton->GetComponent<LayoutElement*>();
-        closeButtonLayoutE->set_preferredWidth(titleBarHeight - titleBarPadding * 2);
-        closeButtonLayoutE->set_preferredHeight(titleBarHeight - titleBarPadding * 2);
-        // Position the button in the top right corner
-        auto closeButtonRect = closeButton->GetComponent<RectTransform*>();
+        Button* closeButton = Flair::UI::CreateFlatButton(titleBarTransform, "X", [window](){window->Close();});
+        closeButton->set_name("CloseButton");
+        RectTransform* closeButtonRect = closeButton->GetComponent<RectTransform*>();
         closeButtonRect->set_anchorMin({1, 1});
         closeButtonRect->set_anchorMax({1, 1});
         closeButtonRect->set_pivot({1, 1});
-        closeButtonRect->set_anchoredPosition({-titleBarPadding, -titleBarPadding});
-        for(auto imageView : closeButton->GetComponentsInChildren<HMUI::ImageView*>()) {
-            // Turn the parallelogram into a basic square
-            imageView->_skew = 0;
-            // Remove the underline
-            if(imageView->get_name() == "Underline") GameObject::Destroy(imageView->get_gameObject());
-        }
+        closeButtonRect->set_anchoredPosition({0, 0});
+        closeButtonRect->set_sizeDelta({windowTitleBarHeight, windowTitleBarHeight});
 
-        // Add a GameObject that will house the objects in the main section of the Window
-        window->body = GameObject::New_ctor("Body");
-        window->body->get_transform()->SetParent(windowCanvas->get_transform(), false);
-        auto bodyTransform = window->body->AddComponent<RectTransform*>();
+        GameObject* bodyGO = GameObject::New_ctor("Body");
+        window->body = bodyGO;
+        RectTransform* bodyTransform = bodyGO->AddComponent<RectTransform*>();
+        bodyTransform->SetParent(mainContainerTransform, false);
         bodyTransform->set_sizeDelta(size);
-
-        // If height was set as -1, interpret that as automatically change height to fit content
         if(size.y == -1) {
-            auto bodyVertical = window->body->AddComponent<VerticalLayoutGroup*>();
-            bodyVertical->set_childControlWidth(true); // A LayoutGroup disables anchors in child objects. Make sure the width can still carry through
-            bodyVertical->set_childControlHeight(false); // Don't control children, just passively get their height
-            // Update the body's RectTransform to fit its children vertically
-            auto bodyFitter = window->body->AddComponent<ContentSizeFitter*>();
+            VerticalLayoutGroup* bodyLayoutG = bodyGO->AddComponent<VerticalLayoutGroup*>();
+            bodyLayoutG->set_childControlWidth(true);
+            bodyLayoutG->set_childControlHeight(false);
+            ContentSizeFitter* bodyFitter = bodyGO->AddComponent<ContentSizeFitter*>();
             bodyFitter->set_verticalFit(__ContentSizeFitter__FitMode::PreferredSize);
         }
 

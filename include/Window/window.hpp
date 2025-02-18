@@ -9,9 +9,9 @@
 #include "UnityEngine/UI/ContentSizeFitter.hpp"
 
 DECLARE_CLASS_CODEGEN(Flair::Window, Window, UnityEngine::MonoBehaviour,
-    // Frequently used components
-    DECLARE_INSTANCE_FIELD_PRIVATE(UnityW<UnityEngine::RectTransform>, _rectTransform);
-    DECLARE_INSTANCE_FIELD_PRIVATE(UnityW<UnityEngine::UI::ContentSizeFitter>, _fitter);
+    DECLARE_INSTANCE_FIELD_PRIVATE(UnityW<UnityEngine::RectTransform>, _canvasTransform);
+    DECLARE_INSTANCE_FIELD_PRIVATE(UnityW<UnityEngine::RectTransform>, _mainContainerTransform);
+    DECLARE_INSTANCE_FIELD_PRIVATE(UnityW<UnityEngine::UI::ContentSizeFitter>, _mainContainerFitter);
 
 
     // Window relationships
@@ -20,6 +20,7 @@ DECLARE_CLASS_CODEGEN(Flair::Window, Window, UnityEngine::MonoBehaviour,
     // DEBUG Parentless FloatingScreen whose handle is borrowed for the time being
     DECLARE_INSTANCE_FIELD(UnityW<BSML::FloatingScreen>, tempHandle);
     // UI objects
+    DECLARE_INSTANCE_FIELD(UnityW<UnityEngine::GameObject>, mainContainer);
     DECLARE_INSTANCE_FIELD(UnityW<UnityEngine::GameObject>, body);
 
 

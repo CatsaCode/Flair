@@ -1,5 +1,5 @@
 #include "main.hpp"
-#include "ParticleInterface.hpp"
+#include "particleInterface.hpp"
 
 #include "UnityEngine/GameObject.hpp"
 

@@ -66,6 +66,7 @@ namespace Flair::Window {
         
         // Update size of the window
         window->SetDirty(true);
+        window->SetDirty(1.0f);
 
         return window;
     }
