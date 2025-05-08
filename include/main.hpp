@@ -13,8 +13,6 @@
 #include "beatsaber-hook/shared/utils/logging.hpp"
 
 
-#include "paper/shared/logger.hpp"
-
 #define MOD_EXPORT __attribute__((visibility("default")))
 #define MOD_EXTERN_FUNC extern "C" MOD_EXPORT
 

@@ -8,7 +8,7 @@
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/UI/ContentSizeFitter.hpp"
 
-DECLARE_CLASS_CODEGEN(Flair::Window, Window, UnityEngine::MonoBehaviour,
+DECLARE_CLASS_CODEGEN(Flair::Window, Window, UnityEngine::MonoBehaviour) {
     DECLARE_INSTANCE_FIELD_PRIVATE(UnityW<UnityEngine::RectTransform>, _canvasTransform);
     DECLARE_INSTANCE_FIELD_PRIVATE(UnityW<UnityEngine::RectTransform>, _mainContainerTransform);
     DECLARE_INSTANCE_FIELD_PRIVATE(UnityW<UnityEngine::UI::ContentSizeFitter>, _mainContainerFitter);
@@ -35,7 +35,7 @@ DECLARE_CLASS_CODEGEN(Flair::Window, Window, UnityEngine::MonoBehaviour,
         void SetDirty();
         void SetDirty(bool nextFrame);
         void SetDirty(float delaySeconds);
-);
+};
 
 namespace Flair::Window {
     Window* CreateWindow(Flair::Window::Window* window, std::string title, UnityEngine::Vector2 size);

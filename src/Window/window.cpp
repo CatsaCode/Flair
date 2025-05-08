@@ -109,7 +109,7 @@ namespace Flair::Window {
         mainContainerLayoutG->set_padding(RectOffset::New_ctor(windowPadding, windowPadding, windowPadding, windowPadding));
         mainContainerLayoutG->set_spacing(windowPadding);
         ContentSizeFitter* mainContainerFitter = mainContainerGO->AddComponent<ContentSizeFitter*>();
-        mainContainerFitter->set_verticalFit(__ContentSizeFitter__FitMode::PreferredSize);
+        mainContainerFitter->set_verticalFit(ContentSizeFitter::FitMode::PreferredSize);
         mainContainerGO->AddComponent<BSML::Backgroundable*>()->ApplyBackground("round-rect-panel");
         mainContainerGO->AddComponent<Touchable*>(); // TODO Disappears?
 
@@ -151,7 +151,7 @@ namespace Flair::Window {
             bodyLayoutG->set_childControlWidth(true);
             bodyLayoutG->set_childControlHeight(false);
             ContentSizeFitter* bodyFitter = bodyGO->AddComponent<ContentSizeFitter*>();
-            bodyFitter->set_verticalFit(__ContentSizeFitter__FitMode::PreferredSize);
+            bodyFitter->set_verticalFit(ContentSizeFitter::FitMode::PreferredSize);
         }
 
         return window;

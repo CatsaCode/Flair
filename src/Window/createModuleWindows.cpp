@@ -23,7 +23,7 @@ namespace Flair::Window {
         vertical->set_childControlWidth(true); // Update width for all child objects
         vertical->set_childControlHeight(false); // Passively read hight from child object
         auto verticalFitter = vertical->get_gameObject()->AddComponent<ContentSizeFitter*>();
-        verticalFitter->set_verticalFit(__ContentSizeFitter__FitMode::PreferredSize); // Use the height from child objects
+        verticalFitter->set_verticalFit(ContentSizeFitter::FitMode::PreferredSize); // Use the height from child objects
 
         // Create each setting
         CreateFloatSetting(vertical->get_transform(), "Duration", "The length of time the Particle System is emitting particles. If the system is looping, this indicates the length of one cycle.", ParticleInterface::MainModule::get_duration(particleSystem), [particleSystem](float value){ParticleInterface::MainModule::set_duration(particleSystem, value);});
