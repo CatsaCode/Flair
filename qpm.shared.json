@@ -59,7 +59,7 @@
       },
       {
         "id": "paper2_scotland2",
-        "versionRange": "^4.6.1",
+        "versionRange": "^4.6.3",
         "additionalData": {}
       },
       {
@@ -80,6 +80,11 @@
       {
         "id": "bsml",
         "versionRange": "^0.4.51",
+        "additionalData": {}
+      },
+      {
+        "id": "assimp",
+        "versionRange": "^5.3.3",
         "additionalData": {}
       }
     ]
@@ -103,12 +108,12 @@
     {
       "dependency": {
         "id": "paper2_scotland2",
-        "versionRange": "=4.6.3",
+        "versionRange": "=4.6.4",
         "additionalData": {
-          "soLink": "https://github.com/Fernthedev/paperlog/releases/download/v4.6.3/libpaper2_scotland2.so",
+          "soLink": "https://github.com/Fernthedev/paperlog/releases/download/v4.6.4/libpaper2_scotland2.so",
           "overrideSoName": "libpaper2_scotland2.so",
-          "modLink": "https://github.com/Fernthedev/paperlog/releases/download/v4.6.3/paper2_scotland2.qmod",
-          "branchName": "version/v4_6_3",
+          "modLink": "https://github.com/Fernthedev/paperlog/releases/download/v4.6.4/paper2_scotland2.qmod",
+          "branchName": "version/v4_6_4",
           "compileOptions": {
             "systemIncludes": [
               "shared/utfcpp/source"
@@ -117,7 +122,7 @@
           "cmake": false
         }
       },
-      "version": "4.6.3"
+      "version": "4.6.4"
     },
     {
       "dependency": {
@@ -178,6 +183,23 @@
         }
       },
       "version": "4004.0.0"
+    },
+    {
+      "dependency": {
+        "id": "assimp",
+        "versionRange": "=5.3.3",
+        "additionalData": {
+          "soLink": "https://github.com/BSQ-VRM/Assimp-QPM/releases/download/5.3.3/libassimp.so",
+          "overrideSoName": "libassimp.so",
+          "modLink": "https://github.com/BSQ-VRM/Assimp-QPM/releases/download/5.3.3/assimp.qmod",
+          "compileOptions": {
+            "systemIncludes": [
+              "shared/"
+            ]
+          }
+        }
+      },
+      "version": "5.3.3"
     },
     {
       "dependency": {
