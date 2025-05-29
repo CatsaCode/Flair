@@ -43,8 +43,8 @@ MAKE_HOOK_MATCH(AssimpTestHook, &GlobalNamespace::MainMenuViewController::DidAct
 
     PaperLogger.info("Loading file...");
 
-    std::string file = "/storage/emulated/0/ModData/com.beatgames.beatsaber/Mods/Flair/testCube.glb";
-    // std::string file = "/storage/emulated/0/ModData/com.beatgames.beatsaber/Mods/Flair/teapot.glb";
+    // std::string file = "/storage/emulated/0/ModData/com.beatgames.beatsaber/Mods/Flair/testCube.glb";
+    std::string file = "/storage/emulated/0/ModData/com.beatgames.beatsaber/Mods/Flair/teapot.glb";
 
     Assimp::Importer importer;
 
@@ -82,6 +82,18 @@ MAKE_HOOK_MATCH(AssimpTestHook, &GlobalNamespace::MainMenuViewController::DidAct
             }
         }
         unityMesh->set_triangles(triangles);
+
+        if(mesh->mNormals != nullptr) {
+            ArrayW<UnityEngine::Vector3> normals = ArrayW<UnityEngine::Vector3>(mesh->mNumVertices);
+            for(int j = 0; j < mesh->mNumVertices; j++) {
+                aiVector3D normal = mesh->mNormals[j];
+                PaperLogger.info("Normal {} | X: {}, Y: {}, Z: {}", j, normal.x, normal.y, normal.z);
+                normals[j] = UnityEngine::Vector3(normal.x, normal.y, normal.z);
+            }
+            unityMesh->set_normals(normals);
+        } else {
+            unityMesh->RecalculateNormals();
+        }
 
 
 
