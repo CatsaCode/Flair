@@ -13,6 +13,7 @@
 #include "Window/createModuleWindows.hpp"
 
 #include "assimp/shared/assimp/Importer.hpp"
+#include "assimp/shared/assimp/Exporter.hpp"
 #include "assimp/shared/assimp/scene.h"
 #include "assimp/shared/assimp/postprocess.h"
 #include "assimp/shared/assimp/mesh.h"
@@ -43,8 +44,8 @@ MAKE_HOOK_MATCH(AssimpTestHook, &GlobalNamespace::MainMenuViewController::DidAct
 
     PaperLogger.info("Loading file...");
 
-    // std::string file = "/storage/emulated/0/ModData/com.beatgames.beatsaber/Mods/Flair/testCube.glb";
-    std::string file = "/storage/emulated/0/ModData/com.beatgames.beatsaber/Mods/Flair/teapot.glb";
+    std::string file = "/storage/emulated/0/ModData/com.beatgames.beatsaber/Mods/Flair/testCube.glb";
+    // std::string file = "/storage/emulated/0/ModData/com.beatgames.beatsaber/Mods/Flair/teapot.glb";
 
     Assimp::Importer importer;
 
@@ -108,6 +109,30 @@ MAKE_HOOK_MATCH(AssimpTestHook, &GlobalNamespace::MainMenuViewController::DidAct
         UnityEngine::Shader* shader = UnityEngine::Resources::FindObjectsOfTypeAll<UnityEngine::Shader*>()->FirstOrDefault([](UnityEngine::Shader* shader){return shader->get_name() == "Standard";});
         UnityEngine::Material* material = UnityEngine::Material::New_ctor(shader);
         testRenderer->set_sharedMaterial(material);
+
+
+
+        Assimp::Exporter exporter;
+
+        for(int j = 0; j < mesh->mNumVertices; j++) {
+            aiVector3D& vertex = mesh->mVertices[j];
+            if( vertex.x == 1 &&
+                vertex.y == 1 &&
+                vertex.z == -1
+            ) {
+                vertex.x = 0;
+                vertex.y = 0;
+                vertex.z = 0;
+            }
+        }
+
+        exporter.Export(scene, "stl", "/storage/emulated/0/ModData/com.beatgames.beatsaber/Mods/Flair/testCube.glb");
+
+        std::string_view err = exporter.GetErrorString();
+        if(!err.empty()) {
+            PaperLogger.info("Error exporting!");
+            PaperLogger.error("{}", err);
+        }
     }
 
 
