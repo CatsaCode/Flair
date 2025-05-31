@@ -66,17 +66,17 @@ MAKE_HOOK_MATCH(AssimpTestHook, &GlobalNamespace::MainMenuViewController::DidAct
         unityMesh->set_name(mesh->mName.C_Str());
         unityMesh->Clear();
 
-        ArrayW<UnityEngine::Vector3> vertices = ArrayW<UnityEngine::Vector3>(mesh->mNumVertices);
+        ArrayW<UnityEngine::Vector3> vertices (mesh->mNumVertices);
         for(int j = 0; j < mesh->mNumVertices; j++) {
-            aiVector3D vertex = mesh->mVertices[j];
+            aiVector3D& vertex = mesh->mVertices[j];
             PaperLogger.info("Vertex {} | X: {}, Y: {}, Z: {}", j, vertex.x, vertex.y, vertex.z);
             vertices[j] = UnityEngine::Vector3(vertex.x, vertex.y, vertex.z);
         }
         unityMesh->set_vertices(vertices);
 
-        ArrayW<int> triangles = ArrayW<int>(mesh->mNumFaces * 3);
+        ArrayW<int> triangles (mesh->mNumFaces * 3);
         for(int j = 0; j < mesh->mNumFaces; j++) {
-            aiFace face = mesh->mFaces[j];
+            aiFace& face = mesh->mFaces[j];
             for(int k = 0; k < 3; k++) {
                 PaperLogger.info("Face {} Index {}", j, face.mIndices[k]);
                 triangles[j * 3 + k] = face.mIndices[k];
@@ -85,15 +85,25 @@ MAKE_HOOK_MATCH(AssimpTestHook, &GlobalNamespace::MainMenuViewController::DidAct
         unityMesh->set_triangles(triangles);
 
         if(mesh->mNormals != nullptr) {
-            ArrayW<UnityEngine::Vector3> normals = ArrayW<UnityEngine::Vector3>(mesh->mNumVertices);
+            ArrayW<UnityEngine::Vector3> normals (mesh->mNumVertices);
             for(int j = 0; j < mesh->mNumVertices; j++) {
-                aiVector3D normal = mesh->mNormals[j];
+                aiVector3D& normal = mesh->mNormals[j];
                 PaperLogger.info("Normal {} | X: {}, Y: {}, Z: {}", j, normal.x, normal.y, normal.z);
                 normals[j] = UnityEngine::Vector3(normal.x, normal.y, normal.z);
             }
             unityMesh->set_normals(normals);
         } else {
             unityMesh->RecalculateNormals();
+        }
+
+        if(mesh->mColors[0] != nullptr) {
+            ArrayW<UnityEngine::Color> colors (mesh->mNumVertices);
+            for(int j = 0; j < mesh->mNumVertices; j++) {
+                aiColor4D& color = mesh->mColors[i][j];
+                PaperLogger.info("Color {} | R: {}, G: {}, B: {}, A: {}", j, color.r, color.g, color.b, color.a);
+                colors[j] = UnityEngine::Color(color.r, color.g, color.b, color.a);
+            }
+            unityMesh->set_colors(colors);
         }
 
 
