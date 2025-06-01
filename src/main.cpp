@@ -11,6 +11,7 @@
 #include "UnityEngine/ParticleSystem.hpp"
 #include "Window/window.hpp"
 #include "Window/createModuleWindows.hpp"
+#include "project.hpp"
 
 #include "assimp/shared/assimp/Importer.hpp"
 #include "assimp/shared/assimp/Exporter.hpp"
@@ -24,6 +25,7 @@
 #include "UnityEngine/Rendering/IndexFormat.hpp"
 
 #include "bsml/shared/Helpers/getters.hpp"
+#include "bsml/shared/BSML/MainThreadScheduler.hpp"
 
 
 static modloader::ModInfo modInfo{MOD_ID, VERSION, 0};
@@ -47,103 +49,17 @@ MAKE_HOOK_MATCH(AssimpTestHook, &GlobalNamespace::MainMenuViewController::DidAct
     std::string file = "/storage/emulated/0/ModData/com.beatgames.beatsaber/Mods/Flair/testCube.glb";
     // std::string file = "/storage/emulated/0/ModData/com.beatgames.beatsaber/Mods/Flair/teapot.glb";
 
-    Assimp::Importer importer;
+    Flair::Project project (file);
 
-    const aiScene* scene = importer.ReadFile(file, 
-        aiProcess_Triangulate);
+    UnityEngine::GameObject* testGO = UnityEngine::GameObject::New_ctor("FlairTest");
+    testGO->get_transform()->set_position(UnityEngine::Vector3(0, 0.5, 0.5));
+    testGO->get_transform()->set_localScale(UnityEngine::Vector3(0.2, 0.2, 0.2));
 
-    if(scene == nullptr) {
-        PaperLogger.info("Error!");
-        PaperLogger.error("{}", importer.GetErrorString());
-        return;
-    }
-
-    for(int i = 0; i < scene->mNumMeshes; i++) {
-        aiMesh* mesh = scene->mMeshes[i];
-        PaperLogger.info("Mesh name: {}", mesh->mName.C_Str());
-        
-        UnityEngine::Mesh* unityMesh = UnityEngine::Mesh::New_ctor();
-        unityMesh->set_name(mesh->mName.C_Str());
-        unityMesh->Clear();
-
-        ArrayW<UnityEngine::Vector3> vertices (mesh->mNumVertices);
-        for(int j = 0; j < mesh->mNumVertices; j++) {
-            aiVector3D& vertex = mesh->mVertices[j];
-            PaperLogger.info("Vertex {} | X: {}, Y: {}, Z: {}", j, vertex.x, vertex.y, vertex.z);
-            vertices[j] = UnityEngine::Vector3(vertex.x, vertex.y, vertex.z);
-        }
-        unityMesh->set_vertices(vertices);
-
-        ArrayW<int> triangles (mesh->mNumFaces * 3);
-        for(int j = 0; j < mesh->mNumFaces; j++) {
-            aiFace& face = mesh->mFaces[j];
-            for(int k = 0; k < 3; k++) {
-                PaperLogger.info("Face {} Index {}", j, face.mIndices[k]);
-                triangles[j * 3 + k] = face.mIndices[k];
-            }
-        }
-        unityMesh->set_triangles(triangles);
-
-        if(mesh->mNormals != nullptr) {
-            ArrayW<UnityEngine::Vector3> normals (mesh->mNumVertices);
-            for(int j = 0; j < mesh->mNumVertices; j++) {
-                aiVector3D& normal = mesh->mNormals[j];
-                PaperLogger.info("Normal {} | X: {}, Y: {}, Z: {}", j, normal.x, normal.y, normal.z);
-                normals[j] = UnityEngine::Vector3(normal.x, normal.y, normal.z);
-            }
-            unityMesh->set_normals(normals);
-        } else {
-            unityMesh->RecalculateNormals();
-        }
-
-        if(mesh->mColors[0] != nullptr) {
-            ArrayW<UnityEngine::Color> colors (mesh->mNumVertices);
-            for(int j = 0; j < mesh->mNumVertices; j++) {
-                aiColor4D& color = mesh->mColors[i][j];
-                PaperLogger.info("Color {} | R: {}, G: {}, B: {}, A: {}", j, color.r, color.g, color.b, color.a);
-                colors[j] = UnityEngine::Color(color.r, color.g, color.b, color.a);
-            }
-            unityMesh->set_colors(colors);
-        }
-
-
-
-        UnityEngine::GameObject* testGO = UnityEngine::GameObject::New_ctor("FlairTest");
-        testGO->get_transform()->set_position(UnityEngine::Vector3(0, 0.5, 0.5));
-        testGO->get_transform()->set_localScale(UnityEngine::Vector3(0.2, 0.2, 0.2));
-
-        UnityEngine::MeshFilter* testFilter = testGO->AddComponent<UnityEngine::MeshFilter*>();
-        testFilter->set_sharedMesh(unityMesh);
-        
-        UnityEngine::MeshRenderer* testRenderer = testGO->AddComponent<UnityEngine::MeshRenderer*>();
-        UnityEngine::Shader* shader = UnityEngine::Resources::FindObjectsOfTypeAll<UnityEngine::Shader*>()->FirstOrDefault([](UnityEngine::Shader* shader){return shader->get_name() == "Standard";});
-        UnityEngine::Material* material = UnityEngine::Material::New_ctor(shader);
-        testRenderer->set_sharedMaterial(material);
-
-
-
-        Assimp::Exporter exporter;
-
-        for(int j = 0; j < mesh->mNumVertices; j++) {
-            aiVector3D& vertex = mesh->mVertices[j];
-            if( vertex.x == 1 &&
-                vertex.y == 1 &&
-                vertex.z == -1
-            ) {
-                vertex.x = 0;
-                vertex.y = 0;
-                vertex.z = 0;
-            }
-        }
-
-        exporter.Export(scene, "stl", "/storage/emulated/0/ModData/com.beatgames.beatsaber/Mods/Flair/testCube.glb");
-
-        std::string_view err = exporter.GetErrorString();
-        if(!err.empty()) {
-            PaperLogger.info("Error exporting!");
-            PaperLogger.error("{}", err);
-        }
-    }
+    UnityEngine::MeshFilter* testFilter = testGO->AddComponent<UnityEngine::MeshFilter*>();
+    testFilter->set_sharedMesh(project.meshes[0].ptr());
+    
+    UnityEngine::MeshRenderer* testRenderer = testGO->AddComponent<UnityEngine::MeshRenderer*>();
+    testRenderer->set_sharedMaterial(project.materials[0].ptr());
 
 
 
