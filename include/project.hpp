@@ -13,6 +13,7 @@ namespace Flair {
     class Project {
         private:
             void LoadMeshes(const aiScene* scene);
+            void LoadTextures(const aiScene* scene);
             void LoadMaterials(const aiScene* scene);
 
         public:

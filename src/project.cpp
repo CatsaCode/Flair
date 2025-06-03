@@ -10,7 +10,12 @@
 #include "UnityEngine/Vector3.hpp"
 #include "UnityEngine/Color.hpp"
 #include "UnityEngine/Mesh.hpp"
+#include "UnityEngine/Texture2D.hpp"
+#include "UnityEngine/ImageConversion.hpp"
+#include "UnityEngine/TextureFormat.hpp"
+
 #include "UnityEngine/Resources.hpp" // DEBUG
+#include "bsml/shared/Helpers/utilities.hpp" // DEBUG
 
 using namespace Flair;
 using namespace UnityEngine;
@@ -38,6 +43,7 @@ void Project::LoadFromFile(std::string_view filePath) {
 
     LoadMeshes(scene);
     LoadMaterials(scene);
+    LoadTextures(scene);
 }
 
 void Project::LoadMeshes(const aiScene* scene) {
@@ -85,6 +91,38 @@ void Project::LoadMeshes(const aiScene* scene) {
         }
 
         meshes.push_back(unityMesh);
+    }
+}
+
+void Project::LoadTextures(const aiScene* scene) {
+    PaperLogger.info("Number of textures: {}", scene->mNumTextures);
+    for(int i = 0; i < scene->mNumTextures; i++) {
+        aiTexture* texture = scene->mTextures[i];
+        PaperLogger.info("File name: {}", texture->mFilename.C_Str());
+        PaperLogger.info("Width: {}", texture->mWidth);
+        PaperLogger.info("Height: {}", texture->mHeight);
+        PaperLogger.info("Format: {}", texture->achFormatHint); // Assuming PNG for now
+
+        if(texture->mHeight > 0) {
+            PaperLogger.error("Texture {} is uncompressed!", i); // TODO
+            continue;
+        }
+
+        ArrayW<uint8_t> imageData (texture->mWidth * 4);
+        for(int j = 0; j < texture->mWidth; j++) {
+            aiTexel& texel = texture->pcData[j];
+            imageData[j * 4 + 0] = texel.b;
+            imageData[j * 4 + 1] = texel.g;
+            imageData[j * 4 + 2] = texel.r;
+            imageData[j * 4 + 3] = texel.a;
+            // PaperLogger.info("{:#X},{:#X},{:#X},{:#X},", texel.b, texel.g, texel.r, texel.a); // TODO Is this always BGRA?
+        }
+
+        Texture2D* unityTexture = Texture2D::New_ctor(0, 0, TextureFormat::RGBA32, false, false); // Size is updated automatically
+        bool result = ImageConversion::LoadImage(unityTexture, imageData);
+        PaperLogger.info("Successful: {}", result);
+
+        materials[0]->set_mainTexture(unityTexture);
     }
 }
 
