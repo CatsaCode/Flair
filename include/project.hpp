@@ -3,6 +3,7 @@
 #include "assimp/scene.h"
 
 #include "UnityEngine/Mesh.hpp"
+#include "UnityEngine/Texture2D.hpp"
 #include "UnityEngine/Material.hpp"
 
 #include <string>
@@ -22,6 +23,7 @@ namespace Flair {
             std::string description;
 
             std::vector<SafePtrUnity<UnityEngine::Mesh>> meshes;
+            std::vector<SafePtrUnity<UnityEngine::Texture>> textures;
             std::vector<SafePtrUnity<UnityEngine::Material>> materials;
 
             Project();

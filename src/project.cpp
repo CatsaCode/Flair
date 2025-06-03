@@ -7,6 +7,7 @@
 #include "assimp/mesh.h"
 
 #include "UnityEngine/GameObject.hpp"
+#include "UnityEngine/Vector2.hpp"
 #include "UnityEngine/Vector3.hpp"
 #include "UnityEngine/Color.hpp"
 #include "UnityEngine/Mesh.hpp"
@@ -15,7 +16,6 @@
 #include "UnityEngine/TextureFormat.hpp"
 
 #include "UnityEngine/Resources.hpp" // DEBUG
-#include "bsml/shared/Helpers/utilities.hpp" // DEBUG
 
 using namespace Flair;
 using namespace UnityEngine;
@@ -42,35 +42,39 @@ void Project::LoadFromFile(std::string_view filePath) {
     }
 
     LoadMeshes(scene);
-    LoadMaterials(scene);
     LoadTextures(scene);
+    LoadMaterials(scene);
 }
 
 void Project::LoadMeshes(const aiScene* scene) {
     for(int i = 0; i < scene->mNumMeshes; i++) {
         aiMesh* mesh = scene->mMeshes[i];
-        
+
         Mesh* unityMesh = Mesh::New_ctor();
         unityMesh->set_name(mesh->mName.C_Str());
         unityMesh->Clear();
 
-        ArrayW<Vector3> vertices (mesh->mNumVertices);
-        for(int j = 0; j < mesh->mNumVertices; j++) {
-            aiVector3D& vertex = mesh->mVertices[j];
-            vertices[j] = Vector3(vertex.x, vertex.y, vertex.z);
-        }
-        unityMesh->set_vertices(vertices);
-
-        ArrayW<int> triangles (mesh->mNumFaces * 3);
-        for(int j = 0; j < mesh->mNumFaces; j++) {
-            aiFace& face = mesh->mFaces[j];
-            for(int k = 0; k < 3; k++) {
-                triangles[j * 3 + k] = face.mIndices[k];
+        if(mesh->HasPositions()) {
+            ArrayW<Vector3> vertices (mesh->mNumVertices);
+            for(int j = 0; j < mesh->mNumVertices; j++) {
+                aiVector3D& vertex = mesh->mVertices[j];
+                vertices[j] = Vector3(vertex.x, vertex.y, vertex.z);
             }
+            unityMesh->set_vertices(vertices);
         }
-        unityMesh->set_triangles(triangles);
 
-        if(mesh->mNormals != nullptr) {
+        if(mesh->HasFaces()) {
+            ArrayW<int> triangles (mesh->mNumFaces * 3);
+            for(int j = 0; j < mesh->mNumFaces; j++) {
+                aiFace& face = mesh->mFaces[j];
+                for(int k = 0; k < 3; k++) {
+                    triangles[j * 3 + k] = face.mIndices[k];
+                }
+            }
+            unityMesh->set_triangles(triangles);
+        }
+
+        if(mesh->HasNormals()) {
             ArrayW<Vector3> normals (mesh->mNumVertices);
             for(int j = 0; j < mesh->mNumVertices; j++) {
                 aiVector3D& normal = mesh->mNormals[j];
@@ -81,7 +85,7 @@ void Project::LoadMeshes(const aiScene* scene) {
             unityMesh->RecalculateNormals();
         }
 
-        if(mesh->mColors[0] != nullptr) {
+        if(mesh->HasVertexColors(0)) {
             ArrayW<Color> colors (mesh->mNumVertices);
             for(int j = 0; j < mesh->mNumVertices; j++) {
                 aiColor4D& color = mesh->mColors[i][j];
@@ -90,18 +94,24 @@ void Project::LoadMeshes(const aiScene* scene) {
             unityMesh->set_colors(colors);
         }
 
+        for(int j = 0; j < 8; j++) {
+            if(!mesh->HasTextureCoords(j)) continue;
+            ArrayW<Vector2> uvs (mesh->mNumVertices);
+            for(int k = 0; k < mesh->mNumVertices; k++) {
+                aiVector3D& uv = mesh->mTextureCoords[j][k];
+                PaperLogger.info("UV X: {}, Y: {}", uv.x, uv.y);
+                uvs[k] = Vector2(uv.x, uv.y);
+            }
+            unityMesh->SetUVs(j, uvs);
+        }
+
         meshes.push_back(unityMesh);
     }
 }
 
 void Project::LoadTextures(const aiScene* scene) {
-    PaperLogger.info("Number of textures: {}", scene->mNumTextures);
     for(int i = 0; i < scene->mNumTextures; i++) {
         aiTexture* texture = scene->mTextures[i];
-        PaperLogger.info("File name: {}", texture->mFilename.C_Str());
-        PaperLogger.info("Width: {}", texture->mWidth);
-        PaperLogger.info("Height: {}", texture->mHeight);
-        PaperLogger.info("Format: {}", texture->achFormatHint); // Assuming PNG for now
 
         if(texture->mHeight > 0) {
             PaperLogger.error("Texture {} is uncompressed!", i); // TODO
@@ -110,26 +120,30 @@ void Project::LoadTextures(const aiScene* scene) {
 
         ArrayW<uint8_t> imageData (texture->mWidth * 4);
         for(int j = 0; j < texture->mWidth; j++) {
-            aiTexel& texel = texture->pcData[j];
+            aiTexel& texel = texture->pcData[j]; // Assimp is ARGB, Unity is BGRA
             imageData[j * 4 + 0] = texel.b;
             imageData[j * 4 + 1] = texel.g;
             imageData[j * 4 + 2] = texel.r;
             imageData[j * 4 + 3] = texel.a;
-            // PaperLogger.info("{:#X},{:#X},{:#X},{:#X},", texel.b, texel.g, texel.r, texel.a); // TODO Is this always BGRA?
         }
 
         Texture2D* unityTexture = Texture2D::New_ctor(0, 0, TextureFormat::RGBA32, false, false); // Size is updated automatically
-        bool result = ImageConversion::LoadImage(unityTexture, imageData);
-        PaperLogger.info("Successful: {}", result);
+        if(!ImageConversion::LoadImage(unityTexture, imageData)) {
+            PaperLogger.error("Failed to load texture {}!", i);
+            continue;
+        }
 
-        materials[0]->set_mainTexture(unityTexture);
+        textures.push_back(unityTexture);
     }
 }
 
 void Project::LoadMaterials(const aiScene* scene) {
     // DEBUG
     Shader* shader = Resources::FindObjectsOfTypeAll<Shader*>()->FirstOrDefault([](Shader* shader){return shader->get_name() == "Standard";});
-    SafePtrUnity<Material> material = Material::New_ctor(shader);
+    Material* material = Material::New_ctor(shader);
+
+    if(textures.size() > 0) material->set_mainTexture(textures[0].ptr());
+    PaperLogger.info("Num textures for material: {}", textures.size());
 
     materials.push_back(material);
 }
