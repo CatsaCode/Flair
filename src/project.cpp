@@ -85,6 +85,9 @@ void Project::LoadMeshes(const aiScene* scene) {
             unityMesh->RecalculateNormals();
         }
 
+        // TODO Import tangent data from assimp
+        unityMesh->RecalculateTangents();
+
         if(mesh->HasVertexColors(0)) {
             ArrayW<Color> colors (mesh->mNumVertices);
             for(int j = 0; j < mesh->mNumVertices; j++) {
@@ -99,7 +102,6 @@ void Project::LoadMeshes(const aiScene* scene) {
             ArrayW<Vector2> uvs (mesh->mNumVertices);
             for(int k = 0; k < mesh->mNumVertices; k++) {
                 aiVector3D& uv = mesh->mTextureCoords[j][k];
-                PaperLogger.info("UV X: {}, Y: {}", uv.x, uv.y);
                 uvs[k] = Vector2(uv.x, uv.y);
             }
             unityMesh->SetUVs(j, uvs);
@@ -143,7 +145,6 @@ void Project::LoadMaterials(const aiScene* scene) {
     Material* material = Material::New_ctor(shader);
 
     if(textures.size() > 0) material->set_mainTexture(textures[0].ptr());
-    PaperLogger.info("Num textures for material: {}", textures.size());
 
     materials.push_back(material);
 }
