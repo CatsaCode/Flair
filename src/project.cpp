@@ -33,7 +33,8 @@ void Project::LoadFromFile(std::string_view filePath) {
 
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(std::string(filePath), 
-        aiProcess_Triangulate
+        aiProcess_Triangulate |
+        aiProcess_MakeLeftHanded
     );
 
     if(scene == nullptr) {
@@ -68,7 +69,7 @@ void Project::LoadMeshes(const aiScene* scene) {
             for(int j = 0; j < mesh->mNumFaces; j++) {
                 aiFace& face = mesh->mFaces[j];
                 for(int k = 0; k < 3; k++) {
-                    triangles[j * 3 + k] = face.mIndices[k];
+                    triangles[j * 3 + k] = face.mIndices[2 - k];
                 }
             }
             unityMesh->set_triangles(triangles);
