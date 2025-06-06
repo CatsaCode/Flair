@@ -22,6 +22,42 @@
 using namespace Flair;
 using namespace UnityEngine;
 
+// DEBUG
+void LogHierarchy(const aiNode* node, const int depth = 0) {
+    const std::string singleDepthStr = "|  ";
+    std::string depthStr = "";
+    for(int i = 0; i < depth; i++) depthStr += singleDepthStr;
+
+    aiVector3D scale;
+    aiVector3D rotation;
+    aiVector3D position;
+    node->mTransformation.Decompose(scale, rotation, position);
+
+    std::vector<int> meshIndices;
+    for(int i = 0; i < node->mNumMeshes; i++) meshIndices.push_back(node->mMeshes[i]);
+
+    PaperLogger.info("{}", depthStr);
+    PaperLogger.info("{}Name: {}", depthStr, node->mName.C_Str());
+    PaperLogger.info("{}- Position: ({:.1f}, {:.1f}, {:.1f})", depthStr, position.x, position.y, position.z);
+    PaperLogger.info("{}- Rotation: ({:.1f}, {:.1f}, {:.1f})", depthStr, rotation.x, rotation.y, rotation.z);
+    PaperLogger.info("{}- Scale: ({:.1f}, {:.1f}, {:.1f})", depthStr, scale.x, scale.y, scale.z);
+    PaperLogger.info("{}- Meshes: {}", depthStr, meshIndices);
+
+    if(node->mMetaData != nullptr) {
+        for(int i = 0; i < node->mMetaData->mNumProperties; i++) {
+            std::string_view key = node->mMetaData->mKeys[i].C_Str();
+            aiMetadataType type = node->mMetaData->mValues[i].mType;
+            // TODO: Convert void* to type
+            PaperLogger.info("{}- MD {}", depthStr, i);
+        }
+    }
+
+    for(int i = 0; i < node->mNumChildren; i++) {
+        aiNode* child = node->mChildren[i];
+        LogHierarchy(child, depth + 1);
+    }
+}
+
 Project::Project() {
 
 }
@@ -31,7 +67,7 @@ Project::Project(std::string_view filePath) {
 }
 
 void Project::LoadFromFile(std::string_view filePath) {
-    PaperLogger.info("Loading project from file");
+    PaperLogger.info("Loading project from {}", filePath);
 
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(std::string(filePath), 
@@ -43,6 +79,8 @@ void Project::LoadFromFile(std::string_view filePath) {
         PaperLogger.error("{}", importer.GetErrorString());
         return;
     }
+
+    LogHierarchy(scene->mRootNode);
 
     LoadMeshes(scene);
     LoadTextures(scene);
