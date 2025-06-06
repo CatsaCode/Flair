@@ -50,17 +50,12 @@ MAKE_HOOK_MATCH(AssimpTestHook, &GlobalNamespace::MainMenuViewController::DidAct
     // std::string file = "/storage/emulated/0/ModData/com.beatgames.beatsaber/Mods/Flair/teapot.glb";
 
     Flair::Project project (file);
-
-    UnityEngine::GameObject* testGO = UnityEngine::GameObject::New_ctor("FlairTest");
+    
+    UnityEngine::GameObject* testGO = UnityEngine::GameObject::Instantiate(project.prefabs[0].ptr());
+    testGO->SetActive(true);
     testGO->get_transform()->set_position(UnityEngine::Vector3(0, 0.5, 0.5));
     testGO->get_transform()->set_localScale(UnityEngine::Vector3(0.2, 0.2, 0.2));
-
-    UnityEngine::MeshFilter* testFilter = testGO->AddComponent<UnityEngine::MeshFilter*>();
-    testFilter->set_sharedMesh(project.meshes[0].ptr());
     
-    UnityEngine::MeshRenderer* testRenderer = testGO->AddComponent<UnityEngine::MeshRenderer*>();
-    testRenderer->set_sharedMaterial(project.materials[0].ptr());
-
 
 
     // // if(!firstActivation) return;

@@ -16,6 +16,8 @@
 #include "UnityEngine/TextureFormat.hpp"
 
 #include "UnityEngine/Resources.hpp" // DEBUG
+#include "UnityEngine/MeshFilter.hpp" // DEBUG
+#include "UnityEngine/MeshRenderer.hpp" // DEBUG
 
 using namespace Flair;
 using namespace UnityEngine;
@@ -45,6 +47,7 @@ void Project::LoadFromFile(std::string_view filePath) {
     LoadMeshes(scene);
     LoadTextures(scene);
     LoadMaterials(scene);
+    LoadPrefabs(scene);
 }
 
 void Project::LoadMeshes(const aiScene* scene) {
@@ -123,7 +126,8 @@ void Project::LoadTextures(const aiScene* scene) {
 
         ArrayW<uint8_t> imageData (texture->mWidth * 4);
         for(int j = 0; j < texture->mWidth; j++) {
-            aiTexel& texel = texture->pcData[j]; // Assimp is ARGB, Unity is BGRA
+            aiTexel& texel = texture->pcData[j]; 
+            // Assimp is ARGB, Unity is BGRA
             imageData[j * 4 + 0] = texel.b;
             imageData[j * 4 + 1] = texel.g;
             imageData[j * 4 + 2] = texel.r;
@@ -148,4 +152,17 @@ void Project::LoadMaterials(const aiScene* scene) {
     if(textures.size() > 0) material->set_mainTexture(textures[0].ptr());
 
     materials.push_back(material);
+}
+
+void Project::LoadPrefabs(const aiScene* scene) {
+    GameObject* prefab = GameObject::New_ctor("TestPrefab");
+    Object::DontDestroyOnLoad(prefab);
+    prefab->SetActive(false);
+    prefabs.push_back(prefab);
+
+    MeshFilter* testFilter = prefab->AddComponent<MeshFilter*>();
+    testFilter->set_sharedMesh(meshes[0].ptr());
+    
+    MeshRenderer* testRenderer = prefab->AddComponent<MeshRenderer*>();
+    testRenderer->set_sharedMaterial(materials[0].ptr());
 }
