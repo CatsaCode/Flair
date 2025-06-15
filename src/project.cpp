@@ -1,5 +1,6 @@
 #include "project.hpp"
 #include "main.hpp"
+#include "loggingUtils.hpp"
 
 #include "assimp/Importer.hpp"
 #include "assimp/scene.h"
@@ -24,9 +25,8 @@ using namespace UnityEngine;
 
 // DEBUG
 void LogHierarchy(const aiNode* node, const int depth = 0) {
-    const std::string singleDepthStr = "|  ";
     std::string depthStr = "";
-    for(int i = 0; i < depth; i++) depthStr += singleDepthStr;
+    for(int i = 0; i < depth; i++) depthStr += DEPTH_STR;
 
     aiVector3D scale;
     aiVector3D rotation;
@@ -93,6 +93,7 @@ void Project::LoadMeshes(const aiScene* scene) {
         aiMesh* mesh = scene->mMeshes[i];
 
         Mesh* unityMesh = Mesh::New_ctor();
+        if(LOG_MESH_DATA) PaperLogger.info("Scene mesh #: {}, Name: {}", i, mesh->mName.C_Str());
         unityMesh->set_name(mesh->mName.C_Str());
         unityMesh->Clear();
 
@@ -100,6 +101,7 @@ void Project::LoadMeshes(const aiScene* scene) {
             ArrayW<Vector3> vertices (mesh->mNumVertices);
             for(int j = 0; j < mesh->mNumVertices; j++) {
                 aiVector3D& vertex = mesh->mVertices[j];
+                if(LOG_MESH_DATA) PaperLogger.info(DEPTH_STR "Vertex #: {}, Position: ({:.2f}, {:.2f}, {:.2f})", j, vertex.x, vertex.y, vertex.z);
                 vertices[j] = Vector3(vertex.x, vertex.y, vertex.z);
             }
             unityMesh->set_vertices(vertices);
@@ -109,6 +111,7 @@ void Project::LoadMeshes(const aiScene* scene) {
             ArrayW<int> triangles (mesh->mNumFaces * 3);
             for(int j = 0; j < mesh->mNumFaces; j++) {
                 aiFace& face = mesh->mFaces[j];
+                if(LOG_MESH_DATA) PaperLogger.info(DEPTH_STR "Face #: {}, # Indices: {}, Indices: [{}, {}, {}]", j, face.mNumIndices, face.mIndices[0], face.mIndices[1], face.mIndices[2]);
                 for(int k = 0; k < 3; k++) {
                     triangles[j * 3 + k] = face.mIndices[2 - k];
                 }
@@ -120,20 +123,24 @@ void Project::LoadMeshes(const aiScene* scene) {
             ArrayW<Vector3> normals (mesh->mNumVertices);
             for(int j = 0; j < mesh->mNumVertices; j++) {
                 aiVector3D& normal = mesh->mNormals[j];
+                if(LOG_MESH_DATA) PaperLogger.info(DEPTH_STR "Normal #: {}, Normal: ({:.2f}, {:.2f}, {:.2f})", j, normal.x, normal.y, normal.z);
                 normals[j] = Vector3(normal.x, normal.y, normal.z);
             }
             unityMesh->set_normals(normals);
         } else {
+            if(LOG_MESH_DATA) PaperLogger.info(DEPTH_STR "Recalculating normals...");
             unityMesh->RecalculateNormals();
         }
 
         // TODO Import tangent data from assimp
+        if(LOG_MESH_DATA) PaperLogger.info(DEPTH_STR "Recalculating tangents...");
         unityMesh->RecalculateTangents();
 
         if(mesh->HasVertexColors(0)) {
             ArrayW<Color> colors (mesh->mNumVertices);
             for(int j = 0; j < mesh->mNumVertices; j++) {
                 aiColor4D& color = mesh->mColors[i][j];
+                if(LOG_MESH_DATA) PaperLogger.info(DEPTH_STR "Color #: {}, Color: ({:.2f}, {:.2f}, {:.2f}, {:.2f})", j, color.r, color.g, color.b, color.a);
                 colors[j] = Color(color.r, color.g, color.b, color.a);
             }
             unityMesh->set_colors(colors);
@@ -144,6 +151,7 @@ void Project::LoadMeshes(const aiScene* scene) {
             ArrayW<Vector2> uvs (mesh->mNumVertices);
             for(int k = 0; k < mesh->mNumVertices; k++) {
                 aiVector3D& uv = mesh->mTextureCoords[j][k];
+                if(LOG_MESH_DATA) PaperLogger.info(DEPTH_STR "UV #: {}, Vertex #: {}, UV: ({:.2f}, {:.2f}, {:.2f})", j, k, uv.x, uv.y, uv.z);
                 uvs[k] = Vector2(uv.x, uv.y);
             }
             unityMesh->SetUVs(j, uvs);
@@ -156,6 +164,7 @@ void Project::LoadMeshes(const aiScene* scene) {
 void Project::LoadTextures(const aiScene* scene) {
     for(int i = 0; i < scene->mNumTextures; i++) {
         aiTexture* texture = scene->mTextures[i];
+        if(LOG_TEXTURE_DATA) PaperLogger.info("Scene texture #: {}, File name: {}, Format hint: {}, Width: {}, Height: {}", i, texture->mFilename.C_Str(), texture->achFormatHint, texture->mWidth, texture->mHeight);
 
         if(texture->mHeight > 0) {
             PaperLogger.error("Texture {} is uncompressed!", i); // TODO
