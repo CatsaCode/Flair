@@ -46,15 +46,14 @@ MAKE_HOOK_MATCH(AssimpTestHook, &GlobalNamespace::MainMenuViewController::DidAct
 
     PaperLogger.info("Loading file...");
 
-    std::string file = "/storage/emulated/0/ModData/com.beatgames.beatsaber/Mods/Flair/testCube.glb";
+    std::string file = "/storage/emulated/0/ModData/com.beatgames.beatsaber/Mods/Flair/currentTest.glb";
     // std::string file = "/storage/emulated/0/ModData/com.beatgames.beatsaber/Mods/Flair/teapot.glb";
 
     Flair::Project project (file);
     
     UnityEngine::GameObject* testGO = UnityEngine::GameObject::Instantiate(project.prefabs[0].ptr());
-    testGO->SetActive(true);
+    // testGO->SetActive(true);
     testGO->get_transform()->set_position(UnityEngine::Vector3(0, 0.5, 0.5));
-    testGO->get_transform()->set_localScale(UnityEngine::Vector3(0.2, 0.2, 0.2));
     
 
 

@@ -18,6 +18,8 @@ namespace Flair {
             void LoadMaterials(const aiScene* scene);
             void LoadPrefabs(const aiScene* scene);
 
+            UnityEngine::GameObject* NodeToGameObject(const aiScene* scene, const aiNode* node, UnityEngine::Transform* parent, const bool newImport, const int depth = 0);
+
         public:
             std::string name;
             std::string author;
