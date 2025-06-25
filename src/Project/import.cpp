@@ -21,57 +21,14 @@
 
 #include "UnityEngine/Resources.hpp" // DEBUG
 
-#include <algorithm>
 #include <cstring>
 #include <exception>
+#include <string_view>
 
 using namespace Flair;
 using namespace UnityEngine;
 
-// DEBUG
-void LogHierarchy(const aiNode* node, const int depth = 0) {
-    std::string depthStr = "";
-    for(int i = 0; i < depth; i++) depthStr += DEPTH_STR;
-
-    aiVector3D scale;
-    aiVector3D rotation;
-    aiVector3D position;
-    node->mTransformation.Decompose(scale, rotation, position);
-
-    std::vector<int> meshIndices;
-    for(int i = 0; i < node->mNumMeshes; i++) meshIndices.push_back(node->mMeshes[i]);
-
-    PaperLogger.info("{}", depthStr);
-    PaperLogger.info("{}Name: {}", depthStr, node->mName.C_Str());
-    PaperLogger.info("{}- Position: ({:.1f}, {:.1f}, {:.1f})", depthStr, position.x, position.y, position.z);
-    PaperLogger.info("{}- Rotation: ({:.1f}, {:.1f}, {:.1f})", depthStr, rotation.x, rotation.y, rotation.z);
-    PaperLogger.info("{}- Scale: ({:.1f}, {:.1f}, {:.1f})", depthStr, scale.x, scale.y, scale.z);
-    PaperLogger.info("{}- Meshes: {}", depthStr, meshIndices);
-
-    if(node->mMetaData != nullptr) {
-        for(int i = 0; i < node->mMetaData->mNumProperties; i++) {
-            std::string_view key = node->mMetaData->mKeys[i].C_Str();
-            aiMetadataType type = node->mMetaData->mValues[i].mType;
-            // TODO: Convert void* to type
-            PaperLogger.info("{}- MD {}", depthStr, i);
-        }
-    }
-
-    for(int i = 0; i < node->mNumChildren; i++) {
-        aiNode* child = node->mChildren[i];
-        LogHierarchy(child, depth + 1);
-    }
-}
-
-Project::Project() {
-
-}
-
-Project::Project(std::string_view filePath) {
-    LoadFromFile(filePath);
-}
-
-void Project::LoadFromFile(std::string_view filePath) {
+void Project::importFromFile(std::string_view filePath) {
     PaperLogger.info("Loading project from {}", filePath);
 
     Assimp::Importer importer;
@@ -85,15 +42,15 @@ void Project::LoadFromFile(std::string_view filePath) {
         return;
     }
 
-    LogHierarchy(scene->mRootNode);
+    if(LOG_SCENE_HIERARCHY) logHierarchy(scene->mRootNode);
 
-    LoadMeshes(scene);
-    LoadTextures(scene);
-    LoadMaterials(scene);
-    LoadPrefabs(scene);
+    importMeshes(scene);
+    importTextures(scene);
+    importMaterials(scene);
+    importPrefabs(scene);
 }
 
-void Project::LoadMeshes(const aiScene* scene) {
+void Project::importMeshes(const aiScene* scene) {
     if(LOG_MESH_DATA) PaperLogger.info("Loading meshes...");
     for(int i = 0; i < scene->mNumMeshes; i++) {
         aiMesh* mesh = scene->mMeshes[i];
@@ -163,11 +120,13 @@ void Project::LoadMeshes(const aiScene* scene) {
             unityMesh->SetUVs(j, uvs);
         }
 
+        if(LOG_MESH_DATA) PaperLogger.info(DEPTH_STR "Material #: {}", mesh->mMaterialIndex);
+
         meshes.push_back(unityMesh);
     }
 }
 
-void Project::LoadTextures(const aiScene* scene) {
+void Project::importTextures(const aiScene* scene) {
     if(LOG_TEXTURE_DATA) PaperLogger.info("Loading textures...");
     for(int i = 0; i < scene->mNumTextures; i++) {
         aiTexture* texture = scene->mTextures[i];
@@ -198,7 +157,7 @@ void Project::LoadTextures(const aiScene* scene) {
     }
 }
 
-void Project::LoadMaterials(const aiScene* scene) {
+void Project::importMaterials(const aiScene* scene) {
     if(LOG_MATERIAL_DATA) PaperLogger.info("Loading materials...");
     // DEBUG
     Shader* shader = Resources::FindObjectsOfTypeAll<Shader*>()->FirstOrDefault([](Shader* shader){return shader->get_name() == "Standard";});
@@ -209,7 +168,7 @@ void Project::LoadMaterials(const aiScene* scene) {
     materials.push_back(material);
 }
 
-void Project::LoadPrefabs(const aiScene* scene) {
+void Project::importPrefabs(const aiScene* scene) {
     if(LOG_PREFAB_DATA) PaperLogger.info("Loading prefabs...");
     static SafePtrUnity<GameObject> flairProjectsGO = nullptr;
     if(!flairProjectsGO) {
@@ -234,21 +193,78 @@ void Project::LoadPrefabs(const aiScene* scene) {
     bool rootIsPrefab = strcmp(rootNode->mName.C_Str(), "ROOT") != 0;
     if(LOG_PREFAB_DATA) PaperLogger.info("Root node is prefab: {}", rootIsPrefab);
     if(rootIsPrefab) {
-        GameObject* prefab = NodeToGameObject(scene, rootNode, projectTransform, newImport, 1);
+        GameObject* prefab = nodeToGameObject(scene, rootNode, projectTransform, newImport, DEPTH_STR);
         prefabs.push_back(prefab);
     } else {
         for(int i = 0; i < rootNode->mNumChildren; i++) {
             aiNode* childNode = rootNode->mChildren[i];
-            GameObject* prefab = NodeToGameObject(scene, childNode, projectTransform, newImport, 1);
+            GameObject* prefab = nodeToGameObject(scene, childNode, projectTransform, newImport, DEPTH_STR);
             prefabs.push_back(prefab);
         }
     }
 }
 
-GameObject* Project::NodeToGameObject(const aiScene* scene, const aiNode* node, Transform* parent, const bool newImport, const int depth/* = 0*/) {
-    std::string depthStr = "";
-    for(int i = 0; i < depth; i++) depthStr += DEPTH_STR;
+void Project::setupMeshFilter(const aiScene* scene, const aiNode* node, GameObject* unityGO, const std::string& depthStr) {
+    if(LOG_NODE_TO_GAMEOBJECT) PaperLogger.info("{}- MeshFilter component", depthStr);
+    aiMetadata nodeMeshFilter;
+    node->mMetaData->Get("meshFilter", nodeMeshFilter);
 
+    int meshIndex;
+    if(!nodeMeshFilter.Get("meshIndex", meshIndex)) throw fmt::format("Node \"{}\" has a meshFilter but is missing meshIndex!", node->mName.C_Str());
+    if(LOG_NODE_TO_GAMEOBJECT) PaperLogger.info("{}- - Mesh #: {}", depthStr, meshIndex);
+    
+    if(meshIndex < 0) throw fmt::format("Node \"{}\" references mesh index {}, an invalid negative number!", node->mName.C_Str(), meshIndex);
+    if(meshIndex >= meshes.size()) throw fmt::format("Node \"{}\" references mesh index {} but the project only contains {} meshes!", node->mName.C_Str(), meshIndex, meshes.size());
+    if(!meshes[meshIndex]) throw fmt::format("Mesh index {} has unloaded! TODO Reload.", meshIndex);
+    
+    MeshFilter* unityFilter = unityGO->AddComponent<MeshFilter*>();
+    unityFilter->set_sharedMesh(meshes[meshIndex].ptr());
+}
+
+void Project::setupMeshRenderer(const aiScene* scene, const aiNode* node, GameObject* unityGO, const std::string& depthStr) {
+    if(LOG_NODE_TO_GAMEOBJECT) PaperLogger.info("{}- MeshRenderer component", depthStr);
+    aiMetadata nodeMeshRenderer;
+    node->mMetaData->Get("meshRenderer", nodeMeshRenderer);
+
+    int materialIndex;
+    if(!nodeMeshRenderer.Get("materialIndex", materialIndex)) throw fmt::format("Node \"{}\" has a meshRenderer but is missing materialIndex!", node->mName.C_Str());
+    if(LOG_NODE_TO_GAMEOBJECT) PaperLogger.info("{}- - Material #: {}", depthStr, materialIndex);
+    
+    if(materialIndex < 0) return;
+    if(materialIndex >= materials.size()) throw fmt::format("Node \"{}\" references material index {} but the project only contains {} materials!", node->mName.C_Str(), materialIndex, materials.size());
+    if(!materials[materialIndex]) throw fmt::format("Material index {} has unloaded! TODO Reload.", materialIndex);
+    
+    MeshRenderer* unityRenderer = unityGO->AddComponent<MeshRenderer*>();
+    unityRenderer->set_sharedMaterial(materials[materialIndex].ptr());
+}
+
+void Project::setupDefaultMeshFilter(const aiScene* scene, const aiNode* node, GameObject* unityGO, const std::string& depthStr) {
+    int meshIndex = node->mMeshes[0];
+    if(LOG_NODE_TO_GAMEOBJECT) PaperLogger.info("{}- - Mesh #: {}", depthStr, meshIndex);
+
+    if(meshIndex < 0) throw fmt::format("Node \"{}\" references mesh index {}, an invalid negative number!", node->mName.C_Str(), meshIndex);
+    if(meshIndex >= meshes.size()) throw fmt::format("Node \"{}\" references mesh index {} but the project only contains {} meshes!", node->mName.C_Str(), meshIndex, meshes.size());
+    if(!meshes[meshIndex]) throw fmt::format("Mesh index {} has unloaded! TODO Reload.", meshIndex);
+    
+    MeshFilter* unityFilter = unityGO->AddComponent<MeshFilter*>();
+    unityFilter->set_sharedMesh(meshes[meshIndex].ptr());
+}
+
+void Project::setupDefaultMeshRenderer(const aiScene* scene, const aiNode* node, GameObject* unityGO, const std::string& depthStr) {
+    int materialIndex = scene->mMeshes[node->mMeshes[0]]->mMaterialIndex;
+    if(LOG_NODE_TO_GAMEOBJECT) PaperLogger.info("{}- - Material #: {}", depthStr, materialIndex);
+
+    materialIndex = 0; // DEBUG
+
+    if(materialIndex < 0) return;
+    if(materialIndex >= materials.size()) throw fmt::format("Node \"{}\" references material index {} but the project only contains {} materials!", node->mName.C_Str(), materialIndex, materials.size());
+    if(!materials[materialIndex]) throw fmt::format("Material index {} has unloaded! TODO Reload.", materialIndex);
+
+    MeshRenderer* unityRenderer = unityGO->AddComponent<MeshRenderer*>();
+    unityRenderer->set_sharedMaterial(materials[materialIndex].ptr());
+}
+
+GameObject* Project::nodeToGameObject(const aiScene* scene, const aiNode* node, Transform* parent, const bool newImport, const std::string& depthStr/* = ""*/) {
     if(LOG_NODE_TO_GAMEOBJECT) {
         PaperLogger.info("{}", depthStr);
         PaperLogger.info("{}Name: {}", depthStr, node->mName.C_Str());
@@ -272,53 +288,14 @@ GameObject* Project::NodeToGameObject(const aiScene* scene, const aiNode* node, 
 
     try {
         if(!newImport && node->mMetaData != nullptr) {
-            if(node->mMetaData->HasKey("meshFilter")) {
-                if(LOG_NODE_TO_GAMEOBJECT) PaperLogger.info("{}- MeshFilter component", depthStr);
-                aiMetadata nodeMeshFilter;
-                node->mMetaData->Get("meshFilter", nodeMeshFilter);
-                int meshIndex;
-                if(!nodeMeshFilter.Get("meshIndex", meshIndex)) throw fmt::format("Node \"{}\" has a meshFilter but is missing meshIndex!", node->mName.C_Str());
-                if(LOG_NODE_TO_GAMEOBJECT) PaperLogger.info("{}- - Mesh #: {}", depthStr, meshIndex);
-                if(meshIndex < 0) throw fmt::format("Node \"{}\" references mesh index {}, an invalid negative number!", node->mName.C_Str(), meshIndex);
-                if(meshIndex >= meshes.size()) throw fmt::format("Node \"{}\" references mesh index {} but the project only contains {} meshes!", node->mName.C_Str(), meshIndex, meshes.size());
-                if(!meshes[meshIndex]) throw fmt::format("Mesh index {} has unloaded! TODO Reload.", meshIndex);
-                MeshFilter* unityFilter = unityGO->AddComponent<MeshFilter*>();
-                unityFilter->set_sharedMesh(meshes[meshIndex].ptr());
-            }
-
-            if(node->mMetaData->HasKey("meshRenderer")) {
-                if(LOG_NODE_TO_GAMEOBJECT) PaperLogger.info("{}- MeshRenderer component", depthStr);
-                aiMetadata nodeMeshRenderer;
-                node->mMetaData->Get("meshRenderer", nodeMeshRenderer);
-                int materialIndex;
-                if(!nodeMeshRenderer.Get("materialIndex", materialIndex)) throw fmt::format("Node \"{}\" has a meshRenderer but is missing materialIndex!", node->mName.C_Str());
-                if(LOG_NODE_TO_GAMEOBJECT) PaperLogger.info("{}- - Material #: {}", depthStr, materialIndex);
-                if(materialIndex >= 0) {
-                    if(materialIndex >= materials.size()) throw fmt::format("Node \"{}\" references material index {} but the project only contains {} materials!", node->mName.C_Str(), materialIndex, materials.size());
-                    if(!materials[materialIndex]) throw fmt::format("Material index {} has unloaded! TODO Reload.", materialIndex);
-                    MeshRenderer* unityRenderer = unityGO->AddComponent<MeshRenderer*>();
-                    unityRenderer->set_sharedMaterial(materials[materialIndex].ptr());
-                }
-            }
+            if(node->mMetaData->HasKey("meshFilter")) setupMeshFilter(scene, node, unityGO, depthStr);
+            if(node->mMetaData->HasKey("meshRenderer")) setupMeshRenderer(scene, node, unityGO, depthStr);
+            
         } else if(newImport) {
             if(node->mNumMeshes > 0) {
                 if(LOG_NODE_TO_GAMEOBJECT) PaperLogger.info("{}- Newly imported mesh", depthStr, node->mNumMeshes);
-                int meshIndex = node->mMeshes[0];
-                if(LOG_NODE_TO_GAMEOBJECT) PaperLogger.info("{}- - Mesh #: {}", depthStr, meshIndex);
-                if(meshIndex < 0) throw fmt::format("Node \"{}\" references mesh index {}, an invalid negative number!", node->mName.C_Str(), meshIndex);
-                if(meshIndex >= meshes.size()) throw fmt::format("Node \"{}\" references mesh index {} but the project only contains {} meshes!", node->mName.C_Str(), meshIndex, meshes.size());
-                if(!meshes[meshIndex]) throw fmt::format("Mesh index {} has unloaded! TODO Reload.", meshIndex);
-                MeshFilter* unityFilter = unityGO->AddComponent<MeshFilter*>();
-                unityFilter->set_sharedMesh(meshes[meshIndex].ptr());
-                int materialIndex = scene->mMeshes[node->mMeshes[0]]->mMaterialIndex;
-                if(LOG_NODE_TO_GAMEOBJECT) PaperLogger.info("{}- - Material #: {}", depthStr, materialIndex);
-                materialIndex = std::max(0, materialIndex); // DEBUG
-                if(materialIndex >= 0) {
-                    if(materialIndex >= materials.size()) throw fmt::format("Node \"{}\" references material index {} but the project only contains {} materials!", node->mName.C_Str(), materialIndex, materials.size());
-                    if(!materials[materialIndex]) throw fmt::format("Material index {} has unloaded! TODO Reload.", materialIndex);
-                    MeshRenderer* unityRenderer = unityGO->AddComponent<MeshRenderer*>();
-                    unityRenderer->set_sharedMaterial(materials[materialIndex].ptr());
-                }
+                setupDefaultMeshFilter(scene, node, unityGO, depthStr);
+                setupDefaultMeshRenderer(scene, node, unityGO, depthStr);
             }
         }
     } catch(const std::exception& err) {
@@ -327,7 +304,7 @@ GameObject* Project::NodeToGameObject(const aiScene* scene, const aiNode* node, 
 
     for(int i = 0; i < node->mNumChildren; i++) {
         aiNode* child = node->mChildren[i];
-        NodeToGameObject(scene, child, unityTransform, newImport, depth + 1);
+        nodeToGameObject(scene, child, unityTransform, newImport, depthStr + DEPTH_STR);
     }
 
     return unityGO;

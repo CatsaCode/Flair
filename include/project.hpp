@@ -2,6 +2,7 @@
 
 #include "assimp/scene.h"
 
+#include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Mesh.hpp"
 #include "UnityEngine/Texture2D.hpp"
 #include "UnityEngine/Material.hpp"
@@ -13,12 +14,16 @@ namespace Flair {
 
     class Project {
         private:
-            void LoadMeshes(const aiScene* scene);
-            void LoadTextures(const aiScene* scene);
-            void LoadMaterials(const aiScene* scene);
-            void LoadPrefabs(const aiScene* scene);
+            void importMeshes(const aiScene* scene);
+            void importTextures(const aiScene* scene);
+            void importMaterials(const aiScene* scene);
+            void importPrefabs(const aiScene* scene);
 
-            UnityEngine::GameObject* NodeToGameObject(const aiScene* scene, const aiNode* node, UnityEngine::Transform* parent, const bool newImport, const int depth = 0);
+            void setupMeshFilter(const aiScene* scene, const aiNode* node, UnityEngine::GameObject* unityGO, const std::string& depthStr);
+            void setupMeshRenderer(const aiScene* scene, const aiNode* node, UnityEngine::GameObject* unityGO, const std::string& depthStr);
+            void setupDefaultMeshFilter(const aiScene* scene, const aiNode* node, UnityEngine::GameObject* unityGO, const std::string& depthStr);
+            void setupDefaultMeshRenderer(const aiScene* scene, const aiNode* node, UnityEngine::GameObject* unityGO, const std::string& depthStr);
+            UnityEngine::GameObject* nodeToGameObject(const aiScene* scene, const aiNode* node, UnityEngine::Transform* parent, const bool newImport, const std::string& depthStr = "");
 
         public:
             std::string name;
@@ -30,10 +35,12 @@ namespace Flair {
             std::vector<SafePtrUnity<UnityEngine::Material>> materials;
             std::vector<SafePtrUnity<UnityEngine::GameObject>> prefabs;
 
-            Project();
-            Project(std::string_view filePath);
+            Project() {}
+            Project(std::string_view filePath) {
+                importFromFile(filePath);
+            }
 
-            void LoadFromFile(std::string_view filePath);
+            void importFromFile(std::string_view filePath);
     };
 
 }
