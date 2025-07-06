@@ -51,7 +51,7 @@ MAKE_HOOK_MATCH(AssimpTestHook, &GlobalNamespace::MainMenuViewController::DidAct
 
     Flair::Project project (file);
     
-    UnityEngine::GameObject* testGO = UnityEngine::GameObject::Instantiate(project.prefabs[0].ptr());
+    UnityEngine::GameObject* testGO = UnityEngine::GameObject::Instantiate(project.prefabs[0].second.ptr());
     // testGO->SetActive(true);
     testGO->get_transform()->set_position(UnityEngine::Vector3(0, 0.5, 0.5));
 

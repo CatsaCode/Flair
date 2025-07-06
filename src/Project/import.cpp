@@ -122,7 +122,10 @@ void Project::importMeshes(const aiScene* scene) {
 
         if(LOG_MESH_DATA) PaperLogger.info(DEPTH_STR "Material #: {}", mesh->mMaterialIndex);
 
-        meshes.push_back(unityMesh);
+        std::string pathName = "Meshes/";
+        pathName += mesh->mName.C_Str();
+
+        meshes.push_back({pathName, unityMesh});
     }
 }
 
@@ -153,7 +156,10 @@ void Project::importTextures(const aiScene* scene) {
             continue;
         }
 
-        textures.push_back(unityTexture);
+        std::string pathName = "Textures/";
+        pathName += texture->mFilename.C_Str();
+
+        textures.push_back({pathName, unityTexture});
     }
 }
 
@@ -163,9 +169,12 @@ void Project::importMaterials(const aiScene* scene) {
     Shader* shader = Resources::FindObjectsOfTypeAll<Shader*>()->FirstOrDefault([](Shader* shader){return shader->get_name() == "Standard";});
     Material* material = Material::New_ctor(shader);
 
-    if(textures.size() > 0) material->set_mainTexture(textures[0].ptr());
+    if(textures.size() > 0) material->set_mainTexture(textures[0].second.ptr());
 
-    materials.push_back(material);
+    std::string pathName = "Materials/";
+    pathName += "debugDefault";
+
+    materials.push_back({pathName, material});
 }
 
 void Project::importPrefabs(const aiScene* scene) {
@@ -194,12 +203,14 @@ void Project::importPrefabs(const aiScene* scene) {
     if(LOG_PREFAB_DATA) PaperLogger.info("Root node is prefab: {}", rootIsPrefab);
     if(rootIsPrefab) {
         GameObject* prefab = nodeToGameObject(scene, rootNode, projectTransform, newImport, DEPTH_STR);
-        prefabs.push_back(prefab);
+        std::string pathName = "Prefabs/" + prefab->get_name();
+        prefabs.push_back({pathName, prefab});
     } else {
         for(int i = 0; i < rootNode->mNumChildren; i++) {
             aiNode* childNode = rootNode->mChildren[i];
             GameObject* prefab = nodeToGameObject(scene, childNode, projectTransform, newImport, DEPTH_STR);
-            prefabs.push_back(prefab);
+            std::string pathName = "Prefabs/" + prefab->get_name();
+            prefabs.push_back({pathName, prefab});
         }
     }
 }
@@ -215,10 +226,10 @@ void Project::setupMeshFilter(const aiScene* scene, const aiNode* node, GameObje
     
     if(meshIndex < 0) throw fmt::format("Node \"{}\" references mesh index {}, an invalid negative number!", node->mName.C_Str(), meshIndex);
     if(meshIndex >= meshes.size()) throw fmt::format("Node \"{}\" references mesh index {} but the project only contains {} meshes!", node->mName.C_Str(), meshIndex, meshes.size());
-    if(!meshes[meshIndex]) throw fmt::format("Mesh index {} has unloaded! TODO Reload.", meshIndex);
+    if(!meshes[meshIndex].second) throw fmt::format("Mesh index {} has unloaded! TODO Reload.", meshIndex);
     
     MeshFilter* unityFilter = unityGO->AddComponent<MeshFilter*>();
-    unityFilter->set_sharedMesh(meshes[meshIndex].ptr());
+    unityFilter->set_sharedMesh(meshes[meshIndex].second.ptr());
 }
 
 void Project::setupMeshRenderer(const aiScene* scene, const aiNode* node, GameObject* unityGO, const std::string& depthStr) {
@@ -232,10 +243,10 @@ void Project::setupMeshRenderer(const aiScene* scene, const aiNode* node, GameOb
     
     if(materialIndex < 0) return;
     if(materialIndex >= materials.size()) throw fmt::format("Node \"{}\" references material index {} but the project only contains {} materials!", node->mName.C_Str(), materialIndex, materials.size());
-    if(!materials[materialIndex]) throw fmt::format("Material index {} has unloaded! TODO Reload.", materialIndex);
+    if(!materials[materialIndex].second) throw fmt::format("Material index {} has unloaded! TODO Reload.", materialIndex);
     
     MeshRenderer* unityRenderer = unityGO->AddComponent<MeshRenderer*>();
-    unityRenderer->set_sharedMaterial(materials[materialIndex].ptr());
+    unityRenderer->set_sharedMaterial(materials[materialIndex].second.ptr());
 }
 
 void Project::setupDefaultMeshFilter(const aiScene* scene, const aiNode* node, GameObject* unityGO, const std::string& depthStr) {
@@ -244,10 +255,10 @@ void Project::setupDefaultMeshFilter(const aiScene* scene, const aiNode* node, G
 
     if(meshIndex < 0) throw fmt::format("Node \"{}\" references mesh index {}, an invalid negative number!", node->mName.C_Str(), meshIndex);
     if(meshIndex >= meshes.size()) throw fmt::format("Node \"{}\" references mesh index {} but the project only contains {} meshes!", node->mName.C_Str(), meshIndex, meshes.size());
-    if(!meshes[meshIndex]) throw fmt::format("Mesh index {} has unloaded! TODO Reload.", meshIndex);
+    if(!meshes[meshIndex].second) throw fmt::format("Mesh index {} has unloaded! TODO Reload.", meshIndex);
     
     MeshFilter* unityFilter = unityGO->AddComponent<MeshFilter*>();
-    unityFilter->set_sharedMesh(meshes[meshIndex].ptr());
+    unityFilter->set_sharedMesh(meshes[meshIndex].second.ptr());
 }
 
 void Project::setupDefaultMeshRenderer(const aiScene* scene, const aiNode* node, GameObject* unityGO, const std::string& depthStr) {
@@ -258,10 +269,10 @@ void Project::setupDefaultMeshRenderer(const aiScene* scene, const aiNode* node,
 
     if(materialIndex < 0) return;
     if(materialIndex >= materials.size()) throw fmt::format("Node \"{}\" references material index {} but the project only contains {} materials!", node->mName.C_Str(), materialIndex, materials.size());
-    if(!materials[materialIndex]) throw fmt::format("Material index {} has unloaded! TODO Reload.", materialIndex);
+    if(!materials[materialIndex].second) throw fmt::format("Material index {} has unloaded! TODO Reload.", materialIndex);
 
     MeshRenderer* unityRenderer = unityGO->AddComponent<MeshRenderer*>();
-    unityRenderer->set_sharedMaterial(materials[materialIndex].ptr());
+    unityRenderer->set_sharedMaterial(materials[materialIndex].second.ptr());
 }
 
 GameObject* Project::nodeToGameObject(const aiScene* scene, const aiNode* node, Transform* parent, const bool newImport, const std::string& depthStr/* = ""*/) {

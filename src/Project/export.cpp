@@ -44,7 +44,7 @@ void Project::exportMeshes(aiScene& scene) {
 
     for(int i = 0; i < meshes.size(); i++) {
         if(LOG_EXPORT) PaperLogger.info("Setting up mesh {}...", i);
-        Mesh* unityMesh = meshes[i].ptr();
+        Mesh* unityMesh = meshes[i].second.ptr();
 
         aiMesh* mesh = new aiMesh();
         scene.mMeshes[i] = mesh;

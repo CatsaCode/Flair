@@ -33,10 +33,10 @@ namespace Flair {
             std::string author;
             std::string description;
 
-            std::vector<SafePtrUnity<UnityEngine::Mesh>> meshes;
-            std::vector<SafePtrUnity<UnityEngine::Texture>> textures;
-            std::vector<SafePtrUnity<UnityEngine::Material>> materials;
-            std::vector<SafePtrUnity<UnityEngine::GameObject>> prefabs;
+            std::vector<std::pair<std::string, SafePtrUnity<UnityEngine::Mesh>>> meshes;
+            std::vector<std::pair<std::string, SafePtrUnity<UnityEngine::Texture>>> textures;
+            std::vector<std::pair<std::string, SafePtrUnity<UnityEngine::Material>>> materials;
+            std::vector<std::pair<std::string, SafePtrUnity<UnityEngine::GameObject>>> prefabs;
 
             Project() {}
             Project(std::string_view filePath) {
