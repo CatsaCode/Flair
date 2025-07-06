@@ -11,6 +11,8 @@
 #define LOG_PREFAB_DATA                 true
 #define LOG_NODE_TO_GAMEOBJECT          true
 
+#define LOG_EXPORT                      true
+
 #define DEPTH_STR "|  "
 
 void logHierarchy(const aiNode* node, const std::string& depthStr = "");

@@ -25,6 +25,9 @@ namespace Flair {
             void setupDefaultMeshRenderer(const aiScene* scene, const aiNode* node, UnityEngine::GameObject* unityGO, const std::string& depthStr);
             UnityEngine::GameObject* nodeToGameObject(const aiScene* scene, const aiNode* node, UnityEngine::Transform* parent, const bool newImport, const std::string& depthStr = "");
 
+            void exportMeshes(aiScene& scene);
+            void exportMaterials(aiScene& scene);
+
         public:
             std::string name;
             std::string author;
@@ -41,6 +44,7 @@ namespace Flair {
             }
 
             void importFromFile(std::string_view filePath);
+            void exportToFile(std::string_view filePath);
     };
 
 }
