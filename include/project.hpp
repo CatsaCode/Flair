@@ -7,10 +7,27 @@
 #include "UnityEngine/Texture2D.hpp"
 #include "UnityEngine/Material.hpp"
 
+#include <memory>
 #include <string>
 #include <vector>
 
 namespace Flair {
+
+    struct Instance {
+        std::string name;
+
+        UnityEngine::Vector3 position;
+        UnityEngine::Vector3 rotation;
+        UnityEngine::Vector3 scale;
+
+        std::vector<std::string> requireTags;
+        std::vector<std::string> filterTags;
+    };
+
+    struct Prefab {
+        SafePtrUnity<UnityEngine::GameObject> go;
+        std::vector<Instance> instances;
+    };
 
     class Project {
         private:
@@ -36,7 +53,7 @@ namespace Flair {
             std::vector<std::pair<std::string, SafePtrUnity<UnityEngine::Mesh>>> meshes;
             std::vector<std::pair<std::string, SafePtrUnity<UnityEngine::Texture>>> textures;
             std::vector<std::pair<std::string, SafePtrUnity<UnityEngine::Material>>> materials;
-            std::vector<std::pair<std::string, SafePtrUnity<UnityEngine::GameObject>>> prefabs;
+            std::vector<std::pair<std::string, std::unique_ptr<Prefab>>> prefabs;
 
             Project() {}
             Project(std::string_view filePath) {

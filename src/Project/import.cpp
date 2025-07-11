@@ -23,6 +23,7 @@
 
 #include <cstring>
 #include <exception>
+#include <memory>
 #include <string_view>
 
 using namespace Flair;
@@ -201,17 +202,16 @@ void Project::importPrefabs(const aiScene* scene) {
 
     bool rootIsPrefab = strcmp(rootNode->mName.C_Str(), "ROOT") != 0;
     if(LOG_PREFAB_DATA) PaperLogger.info("Root node is prefab: {}", rootIsPrefab);
-    if(rootIsPrefab) {
-        GameObject* prefab = nodeToGameObject(scene, rootNode, projectTransform, newImport, DEPTH_STR);
-        std::string pathName = "Prefabs/" + prefab->get_name();
-        prefabs.push_back({pathName, prefab});
-    } else {
-        for(int i = 0; i < rootNode->mNumChildren; i++) {
-            aiNode* childNode = rootNode->mChildren[i];
-            GameObject* prefab = nodeToGameObject(scene, childNode, projectTransform, newImport, DEPTH_STR);
-            std::string pathName = "Prefabs/" + prefab->get_name();
-            prefabs.push_back({pathName, prefab});
-        }
+
+    std::vector<aiNode*> prefabNodes = {rootNode};
+    if(!rootIsPrefab) prefabNodes = std::vector<aiNode*>(rootNode->mChildren, rootNode->mChildren + rootNode->mNumChildren);
+
+    for(aiNode* prefabNode : prefabNodes) {
+        Prefab* prefab = new Prefab();
+        prefab->go = nodeToGameObject(scene, prefabNode, projectTransform, newImport, DEPTH_STR);
+        prefab->instances = {};
+        std::string pathName = "Prefabs/" + prefab->go->get_name();
+        prefabs.push_back({pathName, std::unique_ptr<Prefab>(prefab)});
     }
 }
 
