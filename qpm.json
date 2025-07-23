@@ -63,7 +63,7 @@
     },
     {
       "id": "bs-cordl",
-      "versionRange": "^4006.0.0",
+      "versionRange": "4007.*",
       "additionalData": {}
     },
     {
@@ -78,7 +78,7 @@
     },
     {
       "id": "bsml",
-      "versionRange": "^0.4.53",
+      "versionRange": "^0.4.54",
       "additionalData": {}
     },
     {
