@@ -18,6 +18,7 @@
 #include "UnityEngine/TextureFormat.hpp"
 #include "UnityEngine/MeshFilter.hpp"
 #include "UnityEngine/MeshRenderer.hpp"
+#include "UnityEngine/CombineInstance.hpp"
 
 #include "UnityEngine/Resources.hpp" // DEBUG
 
@@ -88,7 +89,7 @@ namespace Flair::Assets {
             ArrayW<Vector3> vertices (mesh->mNumVertices);
             for(int j = 0; j < mesh->mNumVertices; j++) {
                 aiVector3D& vertex = mesh->mVertices[j];
-                if(LOG_A2U_MESH_DATA) PaperLogger.info(DEPTH_STR "Vertex #: {}, Position: ({:.2f}, {:.2f}, {:.2f})", j, vertex.x, vertex.y, vertex.z);
+                if(LOG_A2U_MESH_DATA) PaperLogger.info("Vertex #: {}, Position: ({:.2f}, {:.2f}, {:.2f})", j, vertex.x, vertex.y, vertex.z);
                 vertices[j] = Vector3(vertex.x, vertex.y, vertex.z);
             }
             unityMesh->set_vertices(vertices);
@@ -98,7 +99,7 @@ namespace Flair::Assets {
             ArrayW<int> triangles (mesh->mNumFaces * 3);
             for(int j = 0; j < mesh->mNumFaces; j++) {
                 aiFace& face = mesh->mFaces[j];
-                if(LOG_A2U_MESH_DATA) PaperLogger.info(DEPTH_STR "Face #: {}, # Indices: {}, Indices: [{}, {}, {}]", j, face.mNumIndices, face.mIndices[0], face.mIndices[1], face.mIndices[2]);
+                if(LOG_A2U_MESH_DATA) PaperLogger.info("Face #: {}, # Indices: {}, Indices: [{}, {}, {}]", j, face.mNumIndices, face.mIndices[0], face.mIndices[1], face.mIndices[2]);
                 for(int k = 0; k < 3; k++) {
                     triangles[j * 3 + k] = face.mIndices[2 - k];
                 }
@@ -110,24 +111,24 @@ namespace Flair::Assets {
             ArrayW<Vector3> normals (mesh->mNumVertices);
             for(int j = 0; j < mesh->mNumVertices; j++) {
                 aiVector3D& normal = mesh->mNormals[j];
-                if(LOG_A2U_MESH_DATA) PaperLogger.info(DEPTH_STR "Normal #: {}, Normal: ({:.2f}, {:.2f}, {:.2f})", j, normal.x, normal.y, normal.z);
+                if(LOG_A2U_MESH_DATA) PaperLogger.info("Normal #: {}, Normal: ({:.2f}, {:.2f}, {:.2f})", j, normal.x, normal.y, normal.z);
                 normals[j] = Vector3(normal.x, normal.y, normal.z);
             }
             unityMesh->set_normals(normals);
         } else {
-            if(LOG_A2U_MESH_DATA) PaperLogger.info(DEPTH_STR "Recalculating normals...");
+            if(LOG_A2U_MESH_DATA) PaperLogger.info("Recalculating normals...");
             unityMesh->RecalculateNormals();
         }
 
         // TODO Import tangent data from assimp
-        if(LOG_A2U_MESH_DATA) PaperLogger.info(DEPTH_STR "Recalculating tangents...");
+        if(LOG_A2U_MESH_DATA) PaperLogger.info("Recalculating tangents...");
         unityMesh->RecalculateTangents();
 
         if(mesh->HasVertexColors(0)) {
             ArrayW<Color> colors (mesh->mNumVertices);
             for(int j = 0; j < mesh->mNumVertices; j++) {
                 aiColor4D& color = mesh->mColors[0][j];
-                if(LOG_A2U_MESH_DATA) PaperLogger.info(DEPTH_STR "Color #: {}, Color: ({:.2f}, {:.2f}, {:.2f}, {:.2f})", j, color.r, color.g, color.b, color.a);
+                if(LOG_A2U_MESH_DATA) PaperLogger.info("Color #: {}, Color: ({:.2f}, {:.2f}, {:.2f}, {:.2f})", j, color.r, color.g, color.b, color.a);
                 colors[j] = Color(color.r, color.g, color.b, color.a);
             }
             unityMesh->set_colors(colors);
@@ -138,19 +139,19 @@ namespace Flair::Assets {
             ArrayW<Vector2> uvs (mesh->mNumVertices);
             for(int k = 0; k < mesh->mNumVertices; k++) {
                 aiVector3D& uv = mesh->mTextureCoords[j][k];
-                if(LOG_A2U_MESH_DATA) PaperLogger.info(DEPTH_STR "UV #: {}, Vertex #: {}, UV: ({:.2f}, {:.2f}, {:.2f})", j, k, uv.x, uv.y, uv.z);
+                if(LOG_A2U_MESH_DATA) PaperLogger.info("UV #: {}, Vertex #: {}, UV: ({:.2f}, {:.2f}, {:.2f})", j, k, uv.x, uv.y, uv.z);
                 uvs[k] = Vector2(uv.x, uv.y);
             }
             unityMesh->SetUVs(j, uvs);
         }
 
-        if(LOG_A2U_MESH_DATA) PaperLogger.info(DEPTH_STR "Material #: {}", mesh->mMaterialIndex);
+        if(LOG_A2U_MESH_DATA) PaperLogger.info("Material #: {}", mesh->mMaterialIndex);
 
         return unityMesh;
     }
 
     Texture2D* assimpToUnity(const aiTexture* texture) {
-        if(LOG_A2U_TEXTURE_INFO) PaperLogger.info("Texture name: {}, Format hint: {}, Width: {}, Height: {}", texture->mFilename.C_Str(), texture->achFormatHint, texture->mWidth, texture->mHeight);
+        if(LOG_A2U_TEXTURE_INFO) PaperLogger.info("Texture: \"{}\", Format hint: \"{}\", Width: {}, Height: {}", texture->mFilename.C_Str(), texture->achFormatHint, texture->mWidth, texture->mHeight);
 
         if(texture->mHeight > 0) {
             PaperLogger.error("Can't load uncompressed texture \"{}\"", texture->mFilename.C_Str()); // TODO
@@ -187,11 +188,45 @@ namespace Flair::Assets {
         return unityMaterial;
     }
 
-    void setupMeshFilter(GameObject* unityGO, const aiNode* node, std::vector<Mesh*>& unityMeshes, const std::vector<std::vector<int>>& submeshIndices) {
-        int meshIndex = node->mMeshes[0]; // TODO Construct new mesh if multiple meshes are used
-        
+    void setupMeshFilter(GameObject* unityGO, const aiNode* node, std::vector<Mesh*>& unityMeshes, std::vector<std::vector<int>>& submeshIndices) {
+        std::vector<int> targetSubmeshIndices = {};
+        for(int i = 0; i < node->mNumMeshes; i++) targetSubmeshIndices.push_back(node->mMeshes[i]); // TODO Is this always in ascending order?
+        int unityMeshIndex = std::distance(submeshIndices.begin(), std::find(submeshIndices.begin(), submeshIndices.end(), targetSubmeshIndices));
+        if(unityMeshIndex == submeshIndices.size()) unityMeshIndex = -1;
+        if(LOG_A2U_NODE_DATA) PaperLogger.info("Target submesh indices: {}, Found Unity mesh #: {}", targetSubmeshIndices, unityMeshIndex);
+
+        if(unityMeshIndex < 0) {
+            ArrayW<CombineInstance> combine = ArrayW<CombineInstance>(node->mNumMeshes);
+            for(int i = 0; i < node->mNumMeshes; i++) {
+                if(LOG_A2U_NODE_DATA) PaperLogger.info("Combining mesh #: {}, Mesh: \"{}\"", i, unityMeshes[i]->get_name());
+                combine[i].set_mesh(unityMeshes[node->mMeshes[i]]);
+                combine[i].set_transform(Matrix4x4::get_identity());
+            }
+
+            std::string meshName = unityMeshes[node->mMeshes[0]]->get_name();
+            int hyphenIndex = meshName.find_last_not_of("0123456789");
+            if(hyphenIndex < 0 || meshName[hyphenIndex] != '-') {
+                PaperLogger.warn("Could not generate a combined mesh name from \"{}\"", meshName);
+                meshName = "Unnamed mesh";
+            } else {
+                meshName = meshName.substr(0, hyphenIndex);
+            }
+
+            Mesh* combinedMesh = Mesh::New_ctor();
+            combinedMesh->set_name(meshName);
+            combinedMesh->CombineMeshes(combine, false);
+
+            if(LOG_A2U_NODE_DATA) PaperLogger.info("Pushing as mesh #: {}", unityMeshes.size());
+            unityMeshes.push_back(combinedMesh);
+            submeshIndices.push_back(targetSubmeshIndices);
+            unityMeshIndex = unityMeshes.size() - 1;
+        }
+
+        Mesh* unityMesh = unityMeshes[unityMeshIndex];
+        if(LOG_A2U_NODE_DATA) PaperLogger.info("Mesh: \"{}\"", unityMesh->get_name());
+
         MeshFilter* unityFilter = unityGO->AddComponent<MeshFilter*>();
-        unityFilter->set_sharedMesh(unityMeshes[meshIndex]);
+        unityFilter->set_sharedMesh(unityMesh);
     }
 
     void setupMeshRenderer(GameObject* unityGO, const aiNode* node, const std::vector<Material*>& unityMaterials, const std::vector<int>& meshMaterialIndices) {
@@ -207,7 +242,7 @@ namespace Flair::Assets {
     }
 
     GameObject* assimpToUnity(const aiNode* node, std::vector<Mesh*>& unityMeshes, std::vector<std::vector<int>>& submeshIndices, const std::vector<Material*>& unityMaterials, const std::vector<int>& meshMaterialIndices) {
-        if(LOG_A2U_NODE_DATA) PaperLogger.info("Node name: {}", node->mName.C_Str());
+        if(LOG_A2U_NODE_DATA) PaperLogger.info("Node: \"{}\"", node->mName.C_Str());
         GameObject* unityGO = GameObject::New_ctor(node->mName.C_Str());
 
         Transform* unityTransform = unityGO->get_transform();
