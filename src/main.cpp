@@ -11,7 +11,7 @@
 #include "UnityEngine/ParticleSystem.hpp"
 #include "Window/window.hpp"
 #include "Window/createModuleWindows.hpp"
-#include "project.hpp"
+#include "assets.hpp"
 
 #include "assimp/shared/assimp/Importer.hpp"
 #include "assimp/shared/assimp/Exporter.hpp"
@@ -46,13 +46,11 @@ MAKE_HOOK_MATCH(AssimpTestHook, &GlobalNamespace::MainMenuViewController::DidAct
 
     PaperLogger.info("Loading file...");
 
-    std::string file = "/storage/emulated/0/ModData/com.beatgames.beatsaber/Mods/Flair/currentTest.glb";
+    std::string filePath = "/storage/emulated/0/ModData/com.beatgames.beatsaber/Mods/Flair/currentTest.glb";
     // std::string file = "/storage/emulated/0/ModData/com.beatgames.beatsaber/Mods/Flair/teapot.glb";
 
-    Flair::Project project (file);
+    UnityEngine::GameObject* testGO = Flair::Assets::loadModel(filePath);
     
-    PaperLogger.info("Instantiating in main.cpp...");
-    UnityEngine::GameObject* testGO = UnityEngine::GameObject::Instantiate(project.prefabs[0].second->go.ptr());
     // testGO->SetActive(true);
     testGO->get_transform()->set_position(UnityEngine::Vector3(0, 0.5, 0.5));
 

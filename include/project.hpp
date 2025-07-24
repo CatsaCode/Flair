@@ -31,19 +31,19 @@ namespace Flair {
 
     class Project {
         private:
-            void importMeshes(const aiScene* scene);
-            void importTextures(const aiScene* scene);
-            void importMaterials(const aiScene* scene);
-            void importPrefabs(const aiScene* scene);
+            // void importMeshes(const aiScene* scene);
+            // void importTextures(const aiScene* scene);
+            // void importMaterials(const aiScene* scene);
+            // void importPrefabs(const aiScene* scene);
 
-            void setupMeshFilter(const aiScene* scene, const aiNode* node, UnityEngine::GameObject* unityGO, const std::string& depthStr);
-            void setupMeshRenderer(const aiScene* scene, const aiNode* node, UnityEngine::GameObject* unityGO, const std::string& depthStr);
-            void setupDefaultMeshFilter(const aiScene* scene, const aiNode* node, UnityEngine::GameObject* unityGO, const std::string& depthStr);
-            void setupDefaultMeshRenderer(const aiScene* scene, const aiNode* node, UnityEngine::GameObject* unityGO, const std::string& depthStr);
-            UnityEngine::GameObject* nodeToGameObject(const aiScene* scene, const aiNode* node, UnityEngine::Transform* parent, const bool newImport, const std::string& depthStr = "");
+            // void setupMeshFilter(const aiScene* scene, const aiNode* node, UnityEngine::GameObject* unityGO, const std::string& depthStr);
+            // void setupMeshRenderer(const aiScene* scene, const aiNode* node, UnityEngine::GameObject* unityGO, const std::string& depthStr);
+            // void setupDefaultMeshFilter(const aiScene* scene, const aiNode* node, UnityEngine::GameObject* unityGO, const std::string& depthStr);
+            // void setupDefaultMeshRenderer(const aiScene* scene, const aiNode* node, UnityEngine::GameObject* unityGO, const std::string& depthStr);
+            // UnityEngine::GameObject* nodeToGameObject(const aiScene* scene, const aiNode* node, UnityEngine::Transform* parent, const bool newImport, const std::string& depthStr = "");
 
-            void exportMeshes(aiScene& scene);
-            void exportMaterials(aiScene& scene);
+            // void exportMeshes(aiScene& scene);
+            // void exportMaterials(aiScene& scene);
 
         public:
             std::string name;
@@ -56,12 +56,12 @@ namespace Flair {
             std::vector<std::pair<std::string, std::unique_ptr<Prefab>>> prefabs;
 
             Project() {}
-            Project(std::string_view filePath) {
-                importFromFile(filePath);
-            }
+            // Project(std::string_view filePath) {
+            //     importFromFile(filePath);
+            // }
 
-            void importFromFile(std::string_view filePath);
-            void exportToFile(std::string_view filePath);
+            // void importFromFile(std::string_view filePath);
+            // void exportToFile(std::string_view filePath);
     };
 
 }
