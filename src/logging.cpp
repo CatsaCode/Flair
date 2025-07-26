@@ -13,7 +13,7 @@ void logHierarchy(const aiNode* node, const std::string& depthStr/* = ""*/) {
     for(int i = 0; i < node->mNumMeshes; i++) meshIndices.push_back(node->mMeshes[i]);
 
     PaperLogger.info("{}", depthStr);
-    PaperLogger.info("{}Name: \"{}\"", depthStr, node->mName.C_Str());
+    PaperLogger.info("{}Name: '{}'", depthStr, node->mName.C_Str());
     PaperLogger.info("{}- Position: ({:.1f}, {:.1f}, {:.1f})", depthStr, position.x, position.y, position.z);
     PaperLogger.info("{}- Rotation: ({:.1f}, {:.1f}, {:.1f})", depthStr, rotation.x, rotation.y, rotation.z);
     PaperLogger.info("{}- Scale: ({:.1f}, {:.1f}, {:.1f})", depthStr, scale.x, scale.y, scale.z);
