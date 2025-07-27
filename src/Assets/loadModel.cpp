@@ -22,7 +22,6 @@
 #include "UnityEngine/MeshFilter.hpp"
 #include "UnityEngine/CombineInstance.hpp"
 #include "UnityEngine/MeshRenderer.hpp"
-#include "UnityEngine/Rendering/LocalKeyword.hpp"
 
 #include <cstring>
 #include <string_view>
@@ -72,7 +71,7 @@ namespace Flair::Assets {
         std::vector<Material*> unityMaterials = {};
         for(int i = 0; i < scene->mNumMaterials; i++) {
             aiMaterial* material = scene->mMaterials[i];
-            Material* unityMaterial = assimpToUnity(material);
+            Material* unityMaterial = assimpToUnity(material, unityTextures);
             if(!unityMaterial) {PaperLogger.warn("Failed to convert material #: {}", i); return nullptr;}
             unityMaterials.push_back(unityMaterial);
         }
@@ -172,6 +171,7 @@ namespace Flair::Assets {
         }
 
         Texture2D* unityTexture = Texture2D::New_ctor(0, 0, TextureFormat::RGBA32, false, false); // Size is updated automatically
+        unityTexture->set_name(texture->mFilename.C_Str());
         if(!ImageConversion::LoadImage(unityTexture, imageData)) {
             PaperLogger.error("Failed to load texture '{}'", texture->mFilename.C_Str());
             return nullptr;
@@ -180,7 +180,7 @@ namespace Flair::Assets {
         return unityTexture;
     }
 
-    Material* assimpToUnity(const aiMaterial* material) {
+    Material* assimpToUnity(const aiMaterial* material, const std::vector<Texture2D*>& unityTextures) {
         if(LOG_A2U_MATERIAL_DATA) {
             PaperLogger.info("Material: '{}'", material->GetName().C_Str());
             PaperLogger.info("# Properties: {}", material->mNumProperties);
@@ -192,19 +192,29 @@ namespace Flair::Assets {
         }
 
         // DEBUG
-        PaperLogger.info("Creating debug material...");
+        if(LOG_A2U_MATERIAL_DATA) PaperLogger.info("Getting shader 'Standard'...");
         static SafePtrUnity<Shader> shader;
         if(!shader) shader = Shader::Find("Standard");
-        
+
         if(LOG_A2U_MATERIAL_DATA) {
             PaperLogger.info("Shader: '{}'", shader->get_name());
+
             PaperLogger.info("# Properties: {}", shader->GetPropertyCount());
             const char* typeNames[] = {"Color", "Vector", "Float", "Range/Float", "Texture", "Int"};
             for(int i = 0; i < shader->GetPropertyCount(); i++) {
                 PaperLogger.info("Shader property: '{}', Type: '{}', Description: '{}'", shader->GetPropertyName(i), typeNames[(int)shader->GetPropertyType(i)], shader->GetPropertyDescription(i));
             }
+
+            static auto get_keywordNames = il2cpp_utils::resolve_icall<ArrayW<StringW>, ByRef<LocalKeywordSpace>>("UnityEngine.Rendering.LocalKeywordSpace::GetKeywordNames_Injected");
+            LocalKeywordSpace localKeywordSpace = shader->get_keywordSpace();
+            ArrayW<StringW> keywordNames = get_keywordNames(localKeywordSpace);
+            PaperLogger.info("# Keywords: {}", keywordNames.size());
+            for(int i = 0; i < keywordNames.size(); i++) {
+                PaperLogger.info("Shader keyword: '{}'", keywordNames[i]);
+            }
         }
-        
+
+        if(LOG_A2U_MATERIAL_DATA) PaperLogger.info("Creating material...");
         Material* unityMaterial = Material::New_ctor(shader.ptr());
         unityMaterial->set_name(material->GetName().C_Str());
 
@@ -212,6 +222,19 @@ namespace Flair::Assets {
         if(material->Get(AI_MATKEY_COLOR_DIFFUSE, colorDiffuse) == AI_SUCCESS) {
             if(LOG_A2U_MATERIAL_DATA) PaperLogger.info("Converting '$clr.diffuse' to '_Color': ({:.2f}, {:.2f}, {:.2f}, [1])", colorDiffuse.r, colorDiffuse.g, colorDiffuse.b);
             unityMaterial->SetColor("_Color", Color(colorDiffuse.r, colorDiffuse.g, colorDiffuse.b, 1));
+        }
+
+        if(LOG_A2U_MATERIAL_DATA) PaperLogger.info("# Diffuse textures: {}", material->GetTextureCount(aiTextureType_DIFFUSE));
+        aiString texturePath;
+        if(material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath) == AI_SUCCESS) {
+            if(texturePath.length <= 0 || texturePath.data[0] != '*') {
+                PaperLogger.warn("Texture path '{}' is not an index", texturePath.C_Str());
+            } else {
+                int textureIndex = std::stoi(std::string(texturePath.data).substr(1, texturePath.length - 1));
+                Texture2D* unityTexture = unityTextures[textureIndex];
+                if(LOG_A2U_MATERIAL_DATA) PaperLogger.info("Converting 'aiTextureType_DIFFUSE' # 0 to '_MainTex': (Texture #: {}, Name: '{}')", textureIndex, unityTexture->get_name());
+                unityMaterial->SetTexture("_MainTex", unityTexture);
+            }
         }
 
         aiColor3D baseColor;
@@ -247,10 +270,6 @@ namespace Flair::Assets {
             if(LOG_A2U_MATERIAL_DATA) PaperLogger.info("Converting '$clr.emissive' to '_Color': ({:.2f}, {:.2f}, {:.2f}, [1])", emissive.r, emissive.g, emissive.b);
             unityMaterial->SetColor("_Color", Color(emissive.r, emissive.g, emissive.b, 1));
         }
-
-        // if(textures.size() > 0) material->set_mainTexture(textures[0].second.ptr());
-
-        // Next task reminder: Modify testHierarchy2 to include a second material with a second texture
 
         return unityMaterial;
     }
