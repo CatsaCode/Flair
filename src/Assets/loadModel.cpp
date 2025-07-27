@@ -343,9 +343,9 @@ namespace Flair::Assets {
             PaperLogger.info("Local scale: ({:.1f}, {:.1f}, {:.1f})", nodeScale.x, nodeScale.y, nodeScale.z);
         }
         unityTransform->set_localPosition(Vector3(nodePosition.x, nodePosition.y, nodePosition.z));
-        unityTransform->set_localEulerAngles(Vector3(nodeRotation.x, nodeRotation.y, nodeRotation.z));
+        unityTransform->set_localEulerAngles(Vector3(nodeRotation.x / M_PI * 180, nodeRotation.y / M_PI * 180, nodeRotation.z / M_PI * 180));
         unityTransform->set_localScale(Vector3(nodeScale.x, nodeScale.y, nodeScale.z));
-
+        
         if(node->mNumMeshes > 0) {
             setupMeshFilter(unityGO, node, unityMeshes, submeshIndices);
             setupMeshRenderer(unityGO, node, unityMaterials, meshMaterialIndices);
