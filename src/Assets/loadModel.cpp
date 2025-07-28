@@ -171,23 +171,45 @@ namespace Flair::Assets {
         }
 
         Texture2D* unityTexture = Texture2D::New_ctor(0, 0, TextureFormat::RGBA32, false, false); // Size is updated automatically
-        unityTexture->set_name(texture->mFilename.C_Str());
+        unityTexture->set_name(texture->mFilename.C_Str()); // TODO This name can be ''
         if(!ImageConversion::LoadImage(unityTexture, imageData)) {
             PaperLogger.error("Failed to load texture '{}'", texture->mFilename.C_Str());
             return nullptr;
         }
-
+        
         return unityTexture;
+    }
+
+    bool getMaterialTextureIndex(const aiMaterial* material, const aiTextureType textureType, int& outTextureIndex) {
+        aiString texturePath;
+        if(material->GetTexture(textureType, 0, &texturePath) != AI_SUCCESS) return false;
+
+        if(texturePath.length <= 0 || texturePath.data[0] != '*') {
+            PaperLogger.warn("Texture path '{}' is not an index", texturePath.C_Str());
+            return false;
+        }
+
+        outTextureIndex = std::stoi(std::string(texturePath.data).substr(1, texturePath.length - 1));
+        return true;
     }
 
     Material* assimpToUnity(const aiMaterial* material, const std::vector<Texture2D*>& unityTextures) {
         if(LOG_A2U_MATERIAL_DATA) {
             PaperLogger.info("Material: '{}'", material->GetName().C_Str());
             PaperLogger.info("# Properties: {}", material->mNumProperties);
-            const char* typeNames[] = {"___", "float", "double", "string", "integer", "buffer"};
+            const char* propertyTypeNames[] = {"___", "float", "double", "string", "integer", "buffer"};
             for(int i = 0; i < material->mNumProperties; i++) {
                 aiMaterialProperty* matProp = material->mProperties[i];
-                PaperLogger.info("Material property: {}, Type: '{}', Size: {}, Texture semantic: {}, Texture #: {}", matProp->mKey.C_Str(), typeNames[matProp->mType], matProp->mDataLength, matProp->mSemantic, matProp->mIndex);
+                PaperLogger.info("Material property: '{}', Type: '{}', Size: {}, Texture semantic: {}, Texture #: {}", matProp->mKey.C_Str(), propertyTypeNames[matProp->mType], matProp->mDataLength, matProp->mSemantic, matProp->mIndex);
+            }
+
+            const char* textureTypeNames[] = {
+                "aiTextureType_NONE", "aiTextureType_DIFFUSE", "aiTextureType_SPECULAR", "aiTextureType_AMBIENT", "aiTextureType_EMISSIVE", "aiTextureType_HEIGHT", "aiTextureType_NORMALS",
+                "aiTextureType_SHININESS", "aiTextureType_OPACITY", "aiTextureType_DISPLACEMENT", "aiTextureType_LIGHTMAP", "aiTextureType_REFLECTION", "aiTextureType_BASE_COLOR", "aiTextureType_NORMAL_CAMERA",
+                "aiTextureType_EMISSION_COLOR", "aiTextureType_METALNESS", "aiTextureType_DIFFUSE_ROUGHNESS", "aiTextureType_AMBIENT_OCCLUSION", "aiTextureType_UNKNOWN", "aiTextureType_SHEEN", "aiTextureType_CLEARCOAT", "aiTextureType_TRANSMISSION"
+            };
+            for(int i = 1; i <= 21; i++) {
+                PaperLogger.info("# '{}' textures: {}", textureTypeNames[i], material->GetTextureCount(static_cast<aiTextureType>(i)));
             }
         }
 
@@ -217,25 +239,7 @@ namespace Flair::Assets {
         if(LOG_A2U_MATERIAL_DATA) PaperLogger.info("Creating material...");
         Material* unityMaterial = Material::New_ctor(shader.ptr());
         unityMaterial->set_name(material->GetName().C_Str());
-
-        aiColor3D colorDiffuse;
-        if(material->Get(AI_MATKEY_COLOR_DIFFUSE, colorDiffuse) == AI_SUCCESS) {
-            if(LOG_A2U_MATERIAL_DATA) PaperLogger.info("Converting '$clr.diffuse' to '_Color': ({:.2f}, {:.2f}, {:.2f}, [1])", colorDiffuse.r, colorDiffuse.g, colorDiffuse.b);
-            unityMaterial->SetColor("_Color", Color(colorDiffuse.r, colorDiffuse.g, colorDiffuse.b, 1));
-        }
-
-        if(LOG_A2U_MATERIAL_DATA) PaperLogger.info("# Diffuse textures: {}", material->GetTextureCount(aiTextureType_DIFFUSE));
-        aiString texturePath;
-        if(material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath) == AI_SUCCESS) {
-            if(texturePath.length <= 0 || texturePath.data[0] != '*') {
-                PaperLogger.warn("Texture path '{}' is not an index", texturePath.C_Str());
-            } else {
-                int textureIndex = std::stoi(std::string(texturePath.data).substr(1, texturePath.length - 1));
-                Texture2D* unityTexture = unityTextures[textureIndex];
-                if(LOG_A2U_MATERIAL_DATA) PaperLogger.info("Converting 'aiTextureType_DIFFUSE' # 0 to '_MainTex': (Texture #: {}, Name: '{}')", textureIndex, unityTexture->get_name());
-                unityMaterial->SetTexture("_MainTex", unityTexture);
-            }
-        }
+        
 
         aiColor3D baseColor;
         if(material->Get(AI_MATKEY_BASE_COLOR, baseColor) == AI_SUCCESS) {
@@ -243,12 +247,23 @@ namespace Flair::Assets {
             unityMaterial->SetColor("_Color", Color(baseColor.r, baseColor.g, baseColor.b, 1));
         }
 
+        int baseColorTextureIndex;
+        if(getMaterialTextureIndex(material, aiTextureType_BASE_COLOR, baseColorTextureIndex)) {
+            if(LOG_A2U_MATERIAL_DATA) PaperLogger.info("Converting 'aiTextureType_BASE_COLOR' # 0 to '_MainTex': (Texture #: {}, Name: '{}')", baseColorTextureIndex, unityTextures[baseColorTextureIndex]->get_name());
+            unityMaterial->SetTexture("_MainTex", unityTextures[baseColorTextureIndex]);
+        }
+
+        aiColor3D emissive;
+        float emissiveIntensity;
+        if(material->Get(AI_MATKEY_COLOR_EMISSIVE, emissive) == AI_SUCCESS &&
+            material->Get(AI_MATKEY_EMISSIVE_INTENSITY, emissiveIntensity) == AI_SUCCESS
+        ) {
+            // Beat Saber does not have a shader varient of Standard compiled with _EMISSION
+            if(LOG_A2U_MATERIAL_DATA) PaperLogger.info("Converting '$clr.emissive' to '_Color': ({:.2f}, {:.2f}, {:.2f}, [1])", emissive.r, emissive.g, emissive.b);
+            unityMaterial->SetColor("_Color", Color(emissive.r, emissive.g, emissive.b, 1));
+        }
+
         // Zero metallic on the Standard shader just makes the material black
-        // float metallicFactor;
-        // if(material->Get(AI_MATKEY_METALLIC_FACTOR, metallicFactor) == AI_SUCCESS) {
-        //     if(LOG_A2U_MATERIAL_DATA) PaperLogger.info("Converting '$mat.metallicFactor' to '_Metallic': {:.2f}", metallicFactor);
-        //     unityMaterial->SetFloat("_Metallic", metallicFactor);
-        // }
         if(LOG_A2U_MATERIAL_DATA) PaperLogger.info("Forcing '_Metallic' to 1");
         unityMaterial->SetFloat("_Metallic", 1);
 
@@ -258,18 +273,11 @@ namespace Flair::Assets {
             unityMaterial->SetFloat("_Glossiness", 1 - roughnessFactor);
         }
 
-        aiColor3D emissive;
-        float emissiveIntensity;
-        if(material->Get(AI_MATKEY_COLOR_EMISSIVE, emissive) == AI_SUCCESS &&
-            material->Get(AI_MATKEY_EMISSIVE_INTENSITY, emissiveIntensity) == AI_SUCCESS
-        ) {
-            // Beat Saber does not have a shader varient of Standard compiled with _EMISSION
-            // if(LOG_A2U_MATERIAL_DATA) PaperLogger.info("Converting '$clr.emissive' and '$mat.emissiveIntensity' to '_EmissionColor': (({:.2f}, {:.2f}, {:.2f}) * {:.2f}, [1])", emissive.r, emissive.g, emissive.b, emissiveIntensity);
-            // unityMaterial->EnableKeyword("_EMISSION");
-            // unityMaterial->SetColor("_EmissionColor", Color(emissive.r * emissiveIntensity, emissive.g * emissiveIntensity, emissive.b * emissiveIntensity, 1));
-            if(LOG_A2U_MATERIAL_DATA) PaperLogger.info("Converting '$clr.emissive' to '_Color': ({:.2f}, {:.2f}, {:.2f}, [1])", emissive.r, emissive.g, emissive.b);
-            unityMaterial->SetColor("_Color", Color(emissive.r, emissive.g, emissive.b, 1));
-        }
+        // All of these seem to need Standard keywords that don't have compiled varients
+        // if(getMaterialTextureIndex(material, aiTextureType_DIFFUSE_ROUGHNESS, diffuseRoughnessTextureIndex)) {
+        // if(getMaterialTextureIndex(material, aiTextureType_NORMALS, normalsTextureIndex)) {
+        // if(getMaterialTextureIndex(material, aiTextureType_HEIGHT, heightTextureIndex)) {
+        // if(getMaterialTextureIndex(material, aiTextureType_AMBIENT_OCCLUSION, ambientOcclusionTextureIndex)) {
 
         return unityMaterial;
     }
