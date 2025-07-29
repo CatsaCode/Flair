@@ -17,6 +17,7 @@
 #include "UnityEngine/Texture2D.hpp"
 #include "UnityEngine/ImageConversion.hpp"
 #include "UnityEngine/TextureFormat.hpp"
+#include "UnityEngine/TextureWrapMode.hpp"
 #include "UnityEngine/Shader.hpp"
 #include "UnityEngine/Material.hpp"
 #include "UnityEngine/MeshFilter.hpp"
@@ -180,20 +181,28 @@ namespace Flair::Assets {
         return unityTexture;
     }
 
-    bool getMaterialTextureIndex(const aiMaterial* material, const aiTextureType textureType, int& outTextureIndex) {
+    Texture2D* getMaterialUnityTexture(const aiMaterial* material, const aiTextureType textureType, std::vector<Texture2D*>& unityTextures) {
         aiString texturePath;
-        if(material->GetTexture(textureType, 0, &texturePath) != AI_SUCCESS) return false;
+        aiTextureMapMode textureMapMode;
+        if(material->GetTexture(textureType, 0, &texturePath, nullptr, nullptr, nullptr, nullptr, &textureMapMode) != AI_SUCCESS) return nullptr;
 
         if(texturePath.length <= 0 || texturePath.data[0] != '*') {
             PaperLogger.warn("Texture path '{}' is not an index", texturePath.C_Str());
-            return false;
+            return nullptr;
         }
 
-        outTextureIndex = std::stoi(std::string(texturePath.data).substr(1, texturePath.length - 1));
-        return true;
+        int textureIndex = std::stoi(std::string(texturePath.data).substr(1, texturePath.length - 1));
+        Texture2D* unityTexture = unityTextures[textureIndex];
+        
+        if(textureMapMode == aiTextureMapMode_Wrap) unityTexture->set_wrapMode(TextureWrapMode::Repeat);
+        else if(textureMapMode == aiTextureMapMode_Clamp) unityTexture->set_wrapMode(TextureWrapMode::Clamp);
+        else if(textureMapMode == aiTextureMapMode_Mirror) unityTexture->set_wrapMode(TextureWrapMode::Mirror);
+        else if(textureMapMode == aiTextureMapMode_Decal) unityTexture->set_wrapMode(TextureWrapMode::Repeat);
+
+        return unityTexture;
     }
 
-    Material* assimpToUnity(const aiMaterial* material, const std::vector<Texture2D*>& unityTextures) {
+    Material* assimpToUnity(const aiMaterial* material, std::vector<Texture2D*>& unityTextures) {
         if(LOG_A2U_MATERIAL_DATA) {
             PaperLogger.info("Material: '{}'", material->GetName().C_Str());
             PaperLogger.info("# Properties: {}", material->mNumProperties);
@@ -247,10 +256,10 @@ namespace Flair::Assets {
             unityMaterial->SetColor("_Color", Color(baseColor.r, baseColor.g, baseColor.b, 1));
         }
 
-        int baseColorTextureIndex;
-        if(getMaterialTextureIndex(material, aiTextureType_BASE_COLOR, baseColorTextureIndex)) {
-            if(LOG_A2U_MATERIAL_DATA) PaperLogger.info("Converting 'aiTextureType_BASE_COLOR' # 0 to '_MainTex': (Texture #: {}, Name: '{}')", baseColorTextureIndex, unityTextures[baseColorTextureIndex]->get_name());
-            unityMaterial->SetTexture("_MainTex", unityTextures[baseColorTextureIndex]);
+        Texture2D* baseColorUnityTexture = getMaterialUnityTexture(material, aiTextureType_BASE_COLOR, unityTextures);
+        if(baseColorUnityTexture) {
+            if(LOG_A2U_MATERIAL_DATA) PaperLogger.info("Converting 'aiTextureType_BASE_COLOR' # 0 to '_MainTex': (Texture: '{}')", baseColorUnityTexture->get_name());
+            unityMaterial->SetTexture("_MainTex", baseColorUnityTexture);
         }
 
         aiColor3D emissive;

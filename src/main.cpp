@@ -46,15 +46,15 @@ MAKE_HOOK_MATCH(AssimpTestHook, &GlobalNamespace::MainMenuViewController::DidAct
 
     PaperLogger.info("Loading file...");
 
-    std::string filePath = "/storage/emulated/0/ModData/com.beatgames.beatsaber/Mods/Flair/meta-quest-3/source/Quest3.glb";
+    std::string filePath = "/storage/emulated/0/ModData/com.beatgames.beatsaber/Mods/Flair/currentTest.glb";
     // std::string file = "/storage/emulated/0/ModData/com.beatgames.beatsaber/Mods/Flair/teapot.glb";
 
     UnityEngine::GameObject* testGO = Flair::Assets::loadModel(filePath);
     if(!testGO) return;
     // testGO->SetActive(true);
     // testGO->get_transform()->set_position(UnityEngine::Vector3(0, 0.5, 0.5));
-    testGO->get_transform()->set_position(UnityEngine::Vector3(0, 0, 1.5));
-    testGO->get_transform()->set_localScale(::UnityEngine::Vector3(0.4, 0.4, 0.4));
+    // testGO->get_transform()->set_position(UnityEngine::Vector3(0, 0, 1.5));
+    // testGO->get_transform()->set_localScale(::UnityEngine::Vector3(0.4, 0.4, 0.4));
 
 
     // std::string exportFilePath = "/storage/emulated/0/ModData/com.beatgames.beatsaber/Mods/Flair/export.gltf";
