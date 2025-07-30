@@ -44,6 +44,8 @@ Configuration &getConfig() {
 MAKE_HOOK_MATCH(AssimpTestHook, &GlobalNamespace::MainMenuViewController::DidActivate, void, GlobalNamespace::MainMenuViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
     AssimpTestHook(self, firstActivation, addedToHierarchy, screenSystemEnabling);
 
+    if(!firstActivation) return;
+
     PaperLogger.info("Loading file...");
 
     std::string filePath = "/storage/emulated/0/ModData/com.beatgames.beatsaber/Mods/Flair/toyota/source/toyota.glb";
@@ -53,8 +55,8 @@ MAKE_HOOK_MATCH(AssimpTestHook, &GlobalNamespace::MainMenuViewController::DidAct
     if(!testGO) return;
     // testGO->SetActive(true);
     // testGO->get_transform()->set_position(UnityEngine::Vector3(0, 0.5, 0.5));
-    testGO->get_transform()->set_position(UnityEngine::Vector3(0, 0, 1.5));
-    testGO->get_transform()->set_localScale(::UnityEngine::Vector3(0.4, 0.4, 0.4));
+    testGO->get_transform()->set_position(UnityEngine::Vector3(0, 0.21, 1.5));
+    // testGO->get_transform()->set_localScale(::UnityEngine::Vector3(0.4, 0.4, 0.4));
 
 
     // std::string exportFilePath = "/storage/emulated/0/ModData/com.beatgames.beatsaber/Mods/Flair/export.gltf";

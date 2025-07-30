@@ -8,6 +8,7 @@
 #define LOG_LOAD_MODEL_SCENE            true     // Hierarchy log the root node when loading a new 3D model
 #define LOG_A2U_MESH_DATA               false    // During assimp to Unity conversion, log mesh vertices, normals, UVs, etc.
 #define LOG_A2U_TEXTURE_INFO            true     // During assimp to Unity conversion, log texture name, file type, resolution, etc.
+#define LOG_A2U_TEXTURE_DATA            true
 #define LOG_A2U_MATERIAL_INFO           true
 #define LOG_A2U_MATERIAL_DATA           false    
 #define LOG_A2U_NODE_DATA               true     // During assimp to Unity conversion, log node transform and component information

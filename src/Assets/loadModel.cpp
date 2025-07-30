@@ -12,6 +12,7 @@
 #include "UnityEngine/Vector2.hpp"
 #include "UnityEngine/Vector3.hpp"
 #include "UnityEngine/Transform.hpp"
+#include "UnityEngine/Quaternion.hpp"
 #include "UnityEngine/Color.hpp"
 #include "UnityEngine/Mesh.hpp"
 #include "UnityEngine/Texture2D.hpp"
@@ -170,6 +171,7 @@ namespace Flair::Assets {
 
         ArrayW<uint8_t> imageData (texture->mWidth * 4);
         for(int j = 0; j < texture->mWidth; j++) {
+            if(LOG_A2U_TEXTURE_DATA && j % (texture->mWidth / 10) == 0) PaperLogger.info("Reading texel packet # {}...", j);
             aiTexel& texel = texture->pcData[j]; 
             // Assimp is ARGB, Unity is BGRA
             imageData[j * 4 + 0] = texel.b;
@@ -390,7 +392,10 @@ namespace Flair::Assets {
             PaperLogger.info("Local scale: ({:.1f}, {:.1f}, {:.1f})", nodeScale.x, nodeScale.y, nodeScale.z);
         }
         unityTransform->set_localPosition(Vector3(nodePosition.x, nodePosition.y, nodePosition.z));
-        unityTransform->set_localEulerAngles(Vector3(nodeRotation.x / M_PI * 180, nodeRotation.y / M_PI * 180, nodeRotation.z / M_PI * 180));
+        unityTransform->set_localRotation(Quaternion::op_Multiply(Quaternion::op_Multiply(
+            Quaternion::AngleAxis(nodeRotation.z / M_PI * 180, Vector3::get_forward()),
+            Quaternion::AngleAxis(nodeRotation.y / M_PI * 180, Vector3::get_up())),
+            Quaternion::AngleAxis(nodeRotation.x / M_PI * 180, Vector3::get_right())));
         unityTransform->set_localScale(Vector3(nodeScale.x, nodeScale.y, nodeScale.z));
         
         if(node->mNumMeshes > 0) {
