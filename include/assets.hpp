@@ -15,7 +15,7 @@ namespace Flair::Assets {
 
     UnityEngine::Mesh* assimpToUnity(const aiMesh* mesh);
     UnityEngine::Texture2D* assimpToUnity(const aiTexture* texture);
-    UnityEngine::Material* assimpToUnity(const aiMaterial* material, std::vector<UnityEngine::Texture2D*>& unityTextures);
+    UnityEngine::Material* assimpToUnity(const aiMaterial* material, std::vector<UnityEngine::Texture2D*>& unityTextures, std::string_view filePath);
     UnityEngine::GameObject* assimpToUnity(const aiNode* node, std::vector<UnityEngine::Mesh*>& unityMeshes, std::vector<std::vector<int>>& submeshIndices, const std::vector<UnityEngine::Material*>& unityMaterials, const std::vector<int>& meshMaterialIndices);
 
 }

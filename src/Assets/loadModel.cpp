@@ -24,13 +24,20 @@
 #include "UnityEngine/CombineInstance.hpp"
 #include "UnityEngine/MeshRenderer.hpp"
 
+#include <algorithm>
 #include <cstring>
+#include <fstream>
 #include <string_view>
 
 using namespace UnityEngine;
 using namespace UnityEngine::Rendering;
 
 namespace Flair::Assets {
+
+    // TODO Find a home for this and other file path manipulation functions
+    std::string getFolderPath(std::string_view filePath) {
+        return std::string(filePath.substr(0, filePath.find_last_of('/') + 1));
+    }
 
     GameObject* loadModel(std::string_view filePath) {
         PaperLogger.info("Loading model from {}", filePath);
@@ -46,7 +53,7 @@ namespace Flair::Assets {
         if(LOG_LOAD_MODEL_SCENE) logHierarchy(scene->mRootNode);
         if(!scene->mRootNode) {PaperLogger.warn("Scene is missing a root node"); return nullptr;}
 
-        if(LOG_LOAD_MODEL) PaperLogger.info("Converting meshes...");
+        if(LOG_LOAD_MODEL) PaperLogger.info("Converting meshes... ({})", scene->mNumMeshes);
         std::vector<Mesh*> unityMeshes = {};
         std::vector<std::vector<int>> submeshIndices = {}; // Meshes with multiple materials are split into submeshes, this keeps tracks of which assimp (sub)meshes each unityMesh references
         std::vector<int> meshMaterialIndices = {}; // Which material each unityMaterial references
@@ -59,7 +66,7 @@ namespace Flair::Assets {
             meshMaterialIndices.push_back(mesh->mMaterialIndex);
         }
 
-        if(LOG_LOAD_MODEL) PaperLogger.info("Converting textures...");
+        if(LOG_LOAD_MODEL) PaperLogger.info("Converting embedded textures... ({})", scene->mNumTextures);
         std::vector<Texture2D*> unityTextures = {};
         for(int i = 0; i < scene->mNumTextures; i++) {
             aiTexture* texture = scene->mTextures[i];
@@ -68,11 +75,11 @@ namespace Flair::Assets {
             unityTextures.push_back(unityTexture);
         }
 
-        if(LOG_LOAD_MODEL) PaperLogger.info("Converting materials...");
+        if(LOG_LOAD_MODEL) PaperLogger.info("Converting materials... ({})", scene->mNumMaterials);
         std::vector<Material*> unityMaterials = {};
         for(int i = 0; i < scene->mNumMaterials; i++) {
             aiMaterial* material = scene->mMaterials[i];
-            Material* unityMaterial = assimpToUnity(material, unityTextures);
+            Material* unityMaterial = assimpToUnity(material, unityTextures, filePath);
             if(!unityMaterial) {PaperLogger.warn("Failed to convert material #: {}", i); return nullptr;}
             unityMaterials.push_back(unityMaterial);
         }
@@ -173,38 +180,60 @@ namespace Flair::Assets {
 
         Texture2D* unityTexture = Texture2D::New_ctor(0, 0, TextureFormat::RGBA32, false, false); // Size is updated automatically
         unityTexture->set_name(texture->mFilename.C_Str()); // TODO This name can be ''
-        if(!ImageConversion::LoadImage(unityTexture, imageData)) {
-            PaperLogger.error("Failed to load texture '{}'", texture->mFilename.C_Str());
-            return nullptr;
-        }
+        if(!ImageConversion::LoadImage(unityTexture, imageData)) {PaperLogger.error("Failed to load texture '{}'", texture->mFilename.C_Str()); return nullptr;}
         
         return unityTexture;
     }
 
-    Texture2D* getMaterialUnityTexture(const aiMaterial* material, const aiTextureType textureType, std::vector<Texture2D*>& unityTextures) {
+    Texture2D* getMaterialUnityTexture(const aiMaterial* material, const aiTextureType textureType, std::vector<Texture2D*>& unityTextures, std::string_view filePath) {
         aiString texturePath;
         aiTextureMapMode textureMapMode;
         if(material->GetTexture(textureType, 0, &texturePath, nullptr, nullptr, nullptr, nullptr, &textureMapMode) != AI_SUCCESS) return nullptr;
+        if(texturePath.length <= 0) {PaperLogger.warn("Texture path is empty"); return nullptr;}
 
-        if(texturePath.length <= 0 || texturePath.data[0] != '*') {
-            PaperLogger.warn("Texture path '{}' is not an index", texturePath.C_Str());
-            return nullptr;
+        Texture2D* unityTexture;
+        if(texturePath.data[0] == '*') {
+            int textureIndex = std::stoi(std::string(texturePath.data).substr(1, texturePath.length - 1));
+            if(LOG_A2U_MATERIAL_INFO) PaperLogger.info("Getting texture from index {}", textureIndex);
+            unityTexture = unityTextures[textureIndex];
+
+        } else {
+            auto textureIt = std::find_if(unityTextures.begin(), unityTextures.end(), [&texturePath](Texture2D* tex){return tex->get_name() == texturePath.C_Str();});
+            if(textureIt != unityTextures.end()) {
+                if(LOG_A2U_MATERIAL_INFO) PaperLogger.info("Getting texture from name '{}'", texturePath.C_Str());
+                int textureIndex = std::distance(unityTextures.begin(), textureIt);
+                unityTexture = unityTextures[textureIndex];
+
+            } else {
+                if(LOG_A2U_MATERIAL_INFO) PaperLogger.info("Generating new texture '{}'", texturePath.C_Str());
+                std::string fullTexturePath = getFolderPath(filePath) + texturePath.C_Str();
+                std::ifstream file (fullTexturePath, std::ios::in | std::ios::binary | std::ios::ate);
+                if(!file.is_open()) {PaperLogger.warn("Couldn't open texture file '{}'", fullTexturePath); return nullptr;}
+
+                size_t fileSize = file.tellg();
+                ArrayW<uint8_t> fileData (fileSize);
+                file.seekg(0, file.beg);
+                file.read(reinterpret_cast<char*>(fileData->_values), fileSize);
+                file.close();
+
+                unityTexture = Texture2D::New_ctor(0, 0, TextureFormat::RGBA32, false, false);
+                unityTexture->set_name(texturePath.C_Str());
+                if(!ImageConversion::LoadImage(unityTexture, fileData)) {PaperLogger.error("Failed to load texture file '{}'", fullTexturePath); return nullptr;}
+                unityTextures.push_back(unityTexture);
+            }
         }
 
-        int textureIndex = std::stoi(std::string(texturePath.data).substr(1, texturePath.length - 1));
-        Texture2D* unityTexture = unityTextures[textureIndex];
-        
         if(textureMapMode == aiTextureMapMode_Wrap) unityTexture->set_wrapMode(TextureWrapMode::Repeat);
         else if(textureMapMode == aiTextureMapMode_Clamp) unityTexture->set_wrapMode(TextureWrapMode::Clamp);
         else if(textureMapMode == aiTextureMapMode_Mirror) unityTexture->set_wrapMode(TextureWrapMode::Mirror);
-        else if(textureMapMode == aiTextureMapMode_Decal) unityTexture->set_wrapMode(TextureWrapMode::Repeat);
+        else if(textureMapMode == aiTextureMapMode_Decal) {unityTexture->set_wrapMode(TextureWrapMode::Repeat); PaperLogger.warn("No conversion for aiTextureMapMode_Decal");}
 
         return unityTexture;
     }
 
-    Material* assimpToUnity(const aiMaterial* material, std::vector<Texture2D*>& unityTextures) {
+    Material* assimpToUnity(const aiMaterial* material, std::vector<Texture2D*>& unityTextures, std::string_view filePath) {
+        if(LOG_A2U_MATERIAL_INFO) PaperLogger.info("Material: '{}'", material->GetName().C_Str());
         if(LOG_A2U_MATERIAL_DATA) {
-            PaperLogger.info("Material: '{}'", material->GetName().C_Str());
             PaperLogger.info("# Properties: {}", material->mNumProperties);
             const char* propertyTypeNames[] = {"___", "float", "double", "string", "integer", "buffer"};
             for(int i = 0; i < material->mNumProperties; i++) {
@@ -223,7 +252,7 @@ namespace Flair::Assets {
         }
 
         // DEBUG
-        if(LOG_A2U_MATERIAL_DATA) PaperLogger.info("Getting shader 'Standard'...");
+        if(LOG_A2U_MATERIAL_INFO) PaperLogger.info("Getting shader 'Standard'...");
         static SafePtrUnity<Shader> shader;
         if(!shader) shader = Shader::Find("Standard");
 
@@ -245,20 +274,20 @@ namespace Flair::Assets {
             }
         }
 
-        if(LOG_A2U_MATERIAL_DATA) PaperLogger.info("Creating material...");
+        if(LOG_A2U_MATERIAL_INFO) PaperLogger.info("Creating material...");
         Material* unityMaterial = Material::New_ctor(shader.ptr());
         unityMaterial->set_name(material->GetName().C_Str());
         
 
         aiColor3D baseColor;
         if(material->Get(AI_MATKEY_BASE_COLOR, baseColor) == AI_SUCCESS) {
-            if(LOG_A2U_MATERIAL_DATA) PaperLogger.info("Converting '$clr.base' to '_Color': ({:.2f}, {:.2f}, {:.2f}, [1])", baseColor.r, baseColor.g, baseColor.b);
+            if(LOG_A2U_MATERIAL_INFO) PaperLogger.info("Converting '$clr.base' to '_Color': ({:.2f}, {:.2f}, {:.2f}, [1])", baseColor.r, baseColor.g, baseColor.b);
             unityMaterial->SetColor("_Color", Color(baseColor.r, baseColor.g, baseColor.b, 1));
         }
 
-        Texture2D* baseColorUnityTexture = getMaterialUnityTexture(material, aiTextureType_BASE_COLOR, unityTextures);
+        Texture2D* baseColorUnityTexture = getMaterialUnityTexture(material, aiTextureType_BASE_COLOR, unityTextures, filePath);
         if(baseColorUnityTexture) {
-            if(LOG_A2U_MATERIAL_DATA) PaperLogger.info("Converting 'aiTextureType_BASE_COLOR' # 0 to '_MainTex': (Texture: '{}')", baseColorUnityTexture->get_name());
+            if(LOG_A2U_MATERIAL_INFO) PaperLogger.info("Converting 'aiTextureType_BASE_COLOR' # 0 to '_MainTex': (Texture: '{}')", baseColorUnityTexture->get_name());
             unityMaterial->SetTexture("_MainTex", baseColorUnityTexture);
         }
 
@@ -268,17 +297,17 @@ namespace Flair::Assets {
             material->Get(AI_MATKEY_EMISSIVE_INTENSITY, emissiveIntensity) == AI_SUCCESS
         ) {
             // Beat Saber does not have a shader varient of Standard compiled with _EMISSION
-            if(LOG_A2U_MATERIAL_DATA) PaperLogger.info("Converting '$clr.emissive' to '_Color': ({:.2f}, {:.2f}, {:.2f}, [1])", emissive.r, emissive.g, emissive.b);
+            if(LOG_A2U_MATERIAL_INFO) PaperLogger.info("Converting '$clr.emissive' to '_Color': ({:.2f}, {:.2f}, {:.2f}, [1])", emissive.r, emissive.g, emissive.b);
             unityMaterial->SetColor("_Color", Color(emissive.r, emissive.g, emissive.b, 1));
         }
 
         // Zero metallic on the Standard shader just makes the material black
-        if(LOG_A2U_MATERIAL_DATA) PaperLogger.info("Forcing '_Metallic' to 1");
+        if(LOG_A2U_MATERIAL_INFO) PaperLogger.info("Forcing '_Metallic' to 1");
         unityMaterial->SetFloat("_Metallic", 1);
 
         float roughnessFactor;
         if(material->Get(AI_MATKEY_ROUGHNESS_FACTOR, roughnessFactor) == AI_SUCCESS) {
-            if(LOG_A2U_MATERIAL_DATA) PaperLogger.info("Converting '$mat.roughnessFactor' to '_Glossiness': {:.2f} --> {:.2f}", roughnessFactor, 1 - roughnessFactor);
+            if(LOG_A2U_MATERIAL_INFO) PaperLogger.info("Converting '$mat.roughnessFactor' to '_Glossiness': {:.2f} --> {:.2f}", roughnessFactor, 1 - roughnessFactor);
             unityMaterial->SetFloat("_Glossiness", 1 - roughnessFactor);
         }
 
@@ -338,7 +367,7 @@ namespace Flair::Assets {
             int meshIndex = node->mMeshes[i];
             int materialIndex = meshMaterialIndices[meshIndex];
             targetMaterials[i] = unityMaterials[materialIndex];
-            if(LOG_A2U_MESH_DATA) PaperLogger.info("Material #: {}, Name: '{}'", materialIndex, targetMaterials[i]->get_name());
+            if(LOG_A2U_NODE_DATA) PaperLogger.info("Material #: {}, Name: '{}'", materialIndex, targetMaterials[i]->get_name());
         }
 
         MeshRenderer* unityRenderer = unityGO->AddComponent<MeshRenderer*>();
