@@ -312,6 +312,7 @@ namespace Flair::Assets {
         }
 
         // All of these seem to need Standard keywords that don't have compiled varients
+        // if(baseColor.a < 1 || material->Get(AI_MATKEY_TRANSMISSION_FACTOR, transmissionFactor) == AI_SUCCESS) {
         // if(getMaterialTextureIndex(material, aiTextureType_DIFFUSE_ROUGHNESS, diffuseRoughnessTextureIndex)) {
         // if(getMaterialTextureIndex(material, aiTextureType_NORMALS, normalsTextureIndex)) {
         // if(getMaterialTextureIndex(material, aiTextureType_HEIGHT, heightTextureIndex)) {
