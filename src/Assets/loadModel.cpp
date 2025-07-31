@@ -92,7 +92,7 @@ namespace Flair::Assets {
 
     Mesh* assimpToUnity(const aiMesh* mesh) {
         Mesh* unityMesh = Mesh::New_ctor();
-        if(LOG_A2U_MESH_DATA) PaperLogger.info("Mesh name: {}", mesh->mName.C_Str());
+        if(LOG_A2U_MESH_INFO) PaperLogger.info("Mesh: '{}'", mesh->mName.C_Str());
         unityMesh->set_name(mesh->mName.C_Str());
         unityMesh->Clear();
 
@@ -196,7 +196,7 @@ namespace Flair::Assets {
         Texture2D* unityTexture;
         if(texturePath.data[0] == '*') {
             int textureIndex = std::stoi(std::string(texturePath.data).substr(1, texturePath.length - 1));
-            if(LOG_A2U_MATERIAL_INFO) PaperLogger.info("Getting texture from index {}", textureIndex);
+            if(LOG_A2U_MATERIAL_INFO) PaperLogger.info("Getting texture from # {}", textureIndex);
             unityTexture = unityTextures[textureIndex];
 
         } else {
@@ -207,7 +207,7 @@ namespace Flair::Assets {
                 unityTexture = unityTextures[textureIndex];
 
             } else {
-                if(LOG_A2U_MATERIAL_INFO) PaperLogger.info("Generating new texture '{}'", texturePath.C_Str());
+                if(LOG_A2U_MATERIAL_INFO || LOG_A2U_TEXTURE_INFO) PaperLogger.info("Generating new texture '{}'", texturePath.C_Str());
                 std::string fullTexturePath = getFolderPath(filePath) + texturePath.C_Str();
                 std::ifstream file (fullTexturePath, std::ios::in | std::ios::binary | std::ios::ate);
                 if(!file.is_open()) {PaperLogger.warn("Couldn't open texture file '{}'", fullTexturePath); return nullptr;}
@@ -333,7 +333,7 @@ namespace Flair::Assets {
         if(unityMeshIndex < 0) {
             ArrayW<CombineInstance> combine = ArrayW<CombineInstance>(node->mNumMeshes);
             for(int i = 0; i < node->mNumMeshes; i++) {
-                if(LOG_A2U_NODE_DATA) PaperLogger.info("Combining mesh #: {}, Mesh: '{}'", i, unityMeshes[i]->get_name());
+                if(LOG_A2U_NODE_DATA || LOG_A2U_MESH_INFO) PaperLogger.info("Combining mesh #: {}, Mesh: '{}'", i, unityMeshes[i]->get_name());
                 combine[i].set_mesh(unityMeshes[node->mMeshes[i]]);
                 combine[i].set_transform(Matrix4x4::get_identity());
             }
@@ -351,7 +351,7 @@ namespace Flair::Assets {
             combinedMesh->set_name(meshName);
             combinedMesh->CombineMeshes(combine, false);
 
-            if(LOG_A2U_NODE_DATA) PaperLogger.info("Pushing as mesh #: {}", unityMeshes.size());
+            if(LOG_A2U_NODE_DATA || LOG_A2U_MESH_INFO) PaperLogger.info("Pushing as mesh #: {}, Mesh: '{}'", unityMeshes.size(), meshName);
             unityMeshes.push_back(combinedMesh);
             submeshIndices.push_back(targetSubmeshIndices);
             unityMeshIndex = unityMeshes.size() - 1;
@@ -370,7 +370,7 @@ namespace Flair::Assets {
             int meshIndex = node->mMeshes[i];
             int materialIndex = meshMaterialIndices[meshIndex];
             targetMaterials[i] = unityMaterials[materialIndex];
-            if(LOG_A2U_NODE_DATA) PaperLogger.info("Material #: {}, Name: '{}'", materialIndex, targetMaterials[i]->get_name());
+            if(LOG_A2U_NODE_DATA) PaperLogger.info("Material #: {}, Material: '{}'", materialIndex, targetMaterials[i]->get_name());
         }
 
         MeshRenderer* unityRenderer = unityGO->AddComponent<MeshRenderer*>();
