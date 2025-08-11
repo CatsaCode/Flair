@@ -4,7 +4,7 @@ include_guard()
 message("VCPKG $ENV{VCPKG_ROOT}")
 
 # chain the toolchain file for vcpkg
-if(CMAKE_TOOLCHAIN_FILE NOT MATCHES ".+")
+if(CMAKE_TOOLCHAIN_FILE MATCHES ".+")
     set(VCPKG_CHAINLOAD_TOOLCHAIN_FILE ${CMAKE_TOOLCHAIN_FILE})
 endif()
 

@@ -1,4 +1,5 @@
 .cache/
+vcpkg_installed/
 
 # Prerequisites
 *.d

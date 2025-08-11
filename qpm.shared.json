@@ -81,11 +81,6 @@
         "id": "bsml",
         "versionRange": "^0.4.55",
         "additionalData": {}
-      },
-      {
-        "id": "assimp",
-        "versionRange": "^5.3.3",
-        "additionalData": {}
       }
     ]
   },
@@ -183,23 +178,6 @@
         }
       },
       "version": "4008.0.0"
-    },
-    {
-      "dependency": {
-        "id": "assimp",
-        "versionRange": "=5.3.3",
-        "additionalData": {
-          "soLink": "https://github.com/BSQ-VRM/Assimp-QPM/releases/download/5.3.3/libassimp.so",
-          "overrideSoName": "libassimp.so",
-          "modLink": "https://github.com/BSQ-VRM/Assimp-QPM/releases/download/5.3.3/assimp.qmod",
-          "compileOptions": {
-            "systemIncludes": [
-              "shared/"
-            ]
-          }
-        }
-      },
-      "version": "5.3.3"
     },
     {
       "dependency": {
