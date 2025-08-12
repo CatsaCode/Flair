@@ -20,6 +20,8 @@ on:
       - '!qpm.json'
       - '!qpm.shared.json'
       - '!mod.template.json'
+      - '!vcpkg.json'
+      - '!vcpkg-configuration.json'
       - '**.txt'
       - '!CMakeLists.txt'
       - '**.ps1'
@@ -85,6 +87,12 @@ jobs:
         qpm_release_bin: true
         qpm_debug_bin: true
         qpm_qmod: ${{ env.qmod_name }}.qmod
+
+    - name: Cache vcpkg_installed
+      uses: actions/cache@v4
+      with:
+        path: ./build/vcpkg_installed
+        key: ${{ runner.os }}-vcpkg-${{ hashFiles('vcpkg*.json') }}
 
     - name: Build & Create Qmod
       run: |
