@@ -13,17 +13,6 @@
 #include "Window/createModuleWindows.hpp"
 #include "assets.hpp"
 
-#include "assimp/shared/assimp/Importer.hpp"
-#include "assimp/shared/assimp/Exporter.hpp"
-#include "assimp/shared/assimp/scene.h"
-#include "assimp/shared/assimp/postprocess.h"
-#include "assimp/shared/assimp/mesh.h"
-#include "UnityEngine/Mesh.hpp"
-#include "UnityEngine/MeshRenderer.hpp"
-#include "UnityEngine/MeshFilter.hpp"
-#include "UnityEngine/MeshTopology.hpp"
-#include "UnityEngine/Rendering/IndexFormat.hpp"
-
 #include "bsml/shared/Helpers/getters.hpp"
 #include "bsml/shared/BSML/MainThreadScheduler.hpp"
 

@@ -62,16 +62,6 @@ add_library(
         ${c_file_list}
 )
 
-# Manually tell vcpkg where assimp and all related packages are because CMAKE_PREFIX_PATH is not working
-set(vcpkg_triplet_dir "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg_installed/${VCPKG_TARGET_TRIPLET}")
-set(vcpkg_packages assimp kubazip unofficial-minizip pugixml poly2tri polyclipping RapidJSON utf8cpp)
-foreach(package_name ${vcpkg_packages})
-        string(TOLOWER "${package_name}" package_path)
-        set(${package_name}_DIR "${vcpkg_triplet_dir}/share/${package_path}")
-endforeach()
-set(CMAKE_MODULE_PATH ${vcpkg_triplet_dir}/share/stb)
-set(Stb_INCLUDE_DIR ${vcpkg_triplet_dir}/include)
-# Link vcpkg assimp
 find_package(assimp CONFIG REQUIRED)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE assimp::assimp)
 
