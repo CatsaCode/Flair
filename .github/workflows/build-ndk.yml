@@ -33,6 +33,7 @@ on:
 env:
     module_id: flair
     qmod_name: Flair
+    VCPKG_ROOT: ${VCPKG_INSTALLATION_ROOT}
 
 jobs:
   build:
