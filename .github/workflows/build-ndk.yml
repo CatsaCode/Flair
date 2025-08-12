@@ -51,9 +51,6 @@ jobs:
       run: |
         echo $ANDROID_NDK_HOME > ${GITHUB_WORKSPACE}/ndkpath.txt
         cat ${GITHUB_WORKSPACE}/ndkpath.txt
-    
-    - name: Set VCPKG_ROOT
-      run: export VCPKG_ROOT=${VCPKG_INSTALLATION_ROOT}
 
     # get version from pushed tag
     - name: Extract version
@@ -92,6 +89,7 @@ jobs:
     - name: Build & Create Qmod
       run: |
         cd ${GITHUB_WORKSPACE}
+        export VCPKG_ROOT=${VCPKG_INSTALLATION_ROOT}
         qpm s qmod
 
     - name: Get Library Name
