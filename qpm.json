@@ -80,6 +80,11 @@
       "id": "bsml",
       "versionRange": "^0.4.55",
       "additionalData": {}
+    },
+    {
+      "id": "metacore",
+      "versionRange": "^1.5.0",
+      "additionalData": {}
     }
   ]
 }

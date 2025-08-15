@@ -169,6 +169,7 @@ namespace Flair::Assets {
             return nullptr;
         }
 
+        // TODO Looking back at the aiTexel struct, the variables are in the order of bgra already... It should totally be possible to feed the buffer straight into Unity. Except I tried and couldn't figure out how to tell ArrayW its size
         ArrayW<uint8_t> imageData (texture->mWidth * 4);
         for(int j = 0; j < texture->mWidth; j++) {
             if(LOG_A2U_TEXTURE_DATA && j % (texture->mWidth / 10) == 0) PaperLogger.info("Reading texel packet # {}, Address: {}...", j, static_cast<void*>(&texture->pcData[j]));

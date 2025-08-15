@@ -81,10 +81,29 @@
         "id": "bsml",
         "versionRange": "^0.4.55",
         "additionalData": {}
+      },
+      {
+        "id": "metacore",
+        "versionRange": "^1.5.0",
+        "additionalData": {}
       }
     ]
   },
   "restoredDependencies": [
+    {
+      "dependency": {
+        "id": "metacore",
+        "versionRange": "=1.5.0",
+        "additionalData": {
+          "soLink": "https://github.com/Metalit/MetaCore/releases/download/v1.5.0/libmetacore.so",
+          "overrideSoName": "libmetacore.so",
+          "modLink": "https://github.com/Metalit/MetaCore/releases/download/v1.5.0/MetaCore.qmod",
+          "branchName": "version/v1_5_0",
+          "cmake": true
+        }
+      },
+      "version": "1.5.0"
+    },
     {
       "dependency": {
         "id": "bsml",
@@ -121,19 +140,15 @@
     },
     {
       "dependency": {
-        "id": "libil2cpp",
-        "versionRange": "=0.4.0",
+        "id": "rapidjson-macros",
+        "versionRange": "=2.1.0",
         "additionalData": {
           "headersOnly": true,
-          "compileOptions": {
-            "systemIncludes": [
-              "il2cpp/external/baselib/Include",
-              "il2cpp/external/baselib/Platforms/Android/Include"
-            ]
-          }
+          "branchName": "version/v2_1_0",
+          "cmake": false
         }
       },
-      "version": "0.4.0"
+      "version": "2.1.0"
     },
     {
       "dependency": {
@@ -154,6 +169,22 @@
         }
       },
       "version": "0.18.3"
+    },
+    {
+      "dependency": {
+        "id": "libil2cpp",
+        "versionRange": "=0.4.0",
+        "additionalData": {
+          "headersOnly": true,
+          "compileOptions": {
+            "systemIncludes": [
+              "il2cpp/external/baselib/Include",
+              "il2cpp/external/baselib/Platforms/Android/Include"
+            ]
+          }
+        }
+      },
+      "version": "0.4.0"
     },
     {
       "dependency": {
