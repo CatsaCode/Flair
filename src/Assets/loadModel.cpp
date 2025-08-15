@@ -171,7 +171,7 @@ namespace Flair::Assets {
 
         ArrayW<uint8_t> imageData (texture->mWidth * 4);
         for(int j = 0; j < texture->mWidth; j++) {
-            if(LOG_A2U_TEXTURE_DATA && j % (texture->mWidth / 10) == 0) PaperLogger.info("Reading texel packet # {}...", j);
+            if(LOG_A2U_TEXTURE_DATA && j % (texture->mWidth / 10) == 0) PaperLogger.info("Reading texel packet # {}, Address: {}...", j, static_cast<void*>(&texture->pcData[j]));
             aiTexel& texel = texture->pcData[j]; 
             // Assimp is ARGB, Unity is BGRA
             imageData[j * 4 + 0] = texel.b;
