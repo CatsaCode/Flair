@@ -165,21 +165,13 @@ namespace Flair::Assets {
         if(LOG_A2U_TEXTURE_INFO) PaperLogger.info("Texture: '{}', Format hint: '{}', Width: {}, Height: {}", texture->mFilename.C_Str(), texture->achFormatHint, texture->mWidth, texture->mHeight);
 
         if(texture->mHeight > 0) {
-            PaperLogger.error("Can't load uncompressed texture '{}'", texture->mFilename.C_Str()); // TODO
+            PaperLogger.error("Can't yet load uncompressed texture '{}'", texture->mFilename.C_Str()); // TODO
             return nullptr;
         }
 
-        // TODO Looking back at the aiTexel struct, the variables are in the order of bgra already... It should totally be possible to feed the buffer straight into Unity. Except I tried and couldn't figure out how to tell ArrayW its size
-        ArrayW<uint8_t> imageData (texture->mWidth * 4);
-        for(int j = 0; j < texture->mWidth; j++) {
-            if(LOG_A2U_TEXTURE_DATA && j % (texture->mWidth / 10) == 0) PaperLogger.info("Reading texel packet # {}, Address: {}...", j, static_cast<void*>(&texture->pcData[j]));
-            aiTexel& texel = texture->pcData[j]; 
-            // Assimp is ARGB, Unity is BGRA
-            imageData[j * 4 + 0] = texel.b;
-            imageData[j * 4 + 1] = texel.g;
-            imageData[j * 4 + 2] = texel.r;
-            imageData[j * 4 + 3] = texel.a;
-        }
+        // Thanks @Metalit
+        ArrayW<uint8_t> imageData (texture->mWidth);
+        memcpy(imageData.begin(), texture->pcData, texture->mWidth);
 
         Texture2D* unityTexture = Texture2D::New_ctor(0, 0, TextureFormat::RGBA32, false, false); // Size is updated automatically
         unityTexture->set_name(texture->mFilename.C_Str()); // TODO This name can be ''
