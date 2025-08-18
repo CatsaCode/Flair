@@ -16,6 +16,8 @@
 #define LOG_A2U_NODE_DATA               true     // During assimp to Unity conversion, log node transform and component information
 
 #define DEPTH_STR "|  "
+#define DEFINE_HIERARCHY_FUNC_NAME_BUFFER(functionName) constexpr std::string HFNB = std::string(std::max<int>(0, 15 - std::string(functionName).size()), ' ')
 
 void logHierarchy(const aiNode* node, const std::string& depthStr = "");
 void logHierarchy(UnityEngine::Transform* transform, const int depthUp = 0, const int depthDown = 1000, const bool listComponents = false, std::string depthStr = "");
+void logComponents(UnityEngine::Transform* transform, const std::string& depthStr = "");

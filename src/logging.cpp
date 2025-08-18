@@ -41,6 +41,7 @@ void logHierarchy(const aiNode* node, const std::string& depthStr/* = ""*/) {
 }
 
 void logHierarchy(Transform* transform, const int depthUp/* = 0*/, const int depthDown/* = 1000*/, const bool listComponents/* = false*/, std::string depthStr/* = ""*/) {
+    DEFINE_HIERARCHY_FUNC_NAME_BUFFER("logHierarchy");
     if(depthUp > 0) {
         std::vector<Transform*> familyTree;
         Transform* currentTransform = transform;
@@ -50,23 +51,30 @@ void logHierarchy(Transform* transform, const int depthUp/* = 0*/, const int dep
         }
 
         for(int i = 0; i < familyTree.size(); i++) {
-            PaperLogger.info("{}GameObject: '{}'", depthStr, familyTree[i]->get_name());
+            if(listComponents) PaperLogger.info("{}{}", HFNB, depthStr);
+            PaperLogger.info("{}{}GameObject: '{}'", HFNB, depthStr, familyTree[i]->get_name());
+            if(listComponents) logComponents(familyTree[i], depthStr);
             depthStr += DEPTH_STR;
         }
+
+        depthStr += "   ";
     }
 
-    if(listComponents) PaperLogger.info("{}", depthStr);
-    PaperLogger.info("{}GameObject: '{}'", depthStr, transform->get_name());
+    if(listComponents) PaperLogger.info("{}{}", HFNB, depthStr);
+    PaperLogger.info("{}{}GameObject: '{}'", HFNB, depthStr, transform->get_name());
 
-    if(listComponents) {
-        ArrayW<Component*> components = transform->GetComponents<Component*>();
-        for(int i = 0; i < components.size(); i++) {
-            PaperLogger.info("{}- {}", depthStr, components[i]->GetType()->get_NameOrDefault());
-        }
-    }
+    if(listComponents) logComponents(transform, depthStr);
 
     for(int i = 0; i < transform->get_childCount(); i++) {
         Transform* childTransform = transform->GetChild(i);
         logHierarchy(childTransform, 0, depthDown - 1, listComponents, depthStr + DEPTH_STR);
+    }
+}
+
+void logComponents(UnityEngine::Transform* transform, const std::string& depthStr/* = ""*/) {
+    DEFINE_HIERARCHY_FUNC_NAME_BUFFER("logComponents");
+    ArrayW<Component*> components = transform->GetComponents<Component*>();
+    for(int i = 0; i < components.size(); i++) {
+        PaperLogger.info("{}{}- {}", HFNB, depthStr, components[i]->GetType()->get_NameOrDefault());
     }
 }

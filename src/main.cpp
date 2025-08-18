@@ -1,5 +1,6 @@
 #include "main.hpp"
 
+#include "logging.hpp"
 #include "scotland2/shared/modloader.h"
 #include "custom-types/shared/register.hpp"
 #include "bsml/shared/BSML.hpp"
@@ -52,6 +53,8 @@ void SpawnToyota() {
 
 MAKE_HOOK_MATCH(AssimpTestHook, &GlobalNamespace::MainMenuViewController::DidActivate, void, GlobalNamespace::MainMenuViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
     AssimpTestHook(self, firstActivation, addedToHierarchy, screenSystemEnabling);
+
+    logHierarchy(self->get_transform(), 1000, 1000, true);
 
     if(!firstActivation) return;
 
