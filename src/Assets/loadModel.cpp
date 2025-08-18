@@ -173,7 +173,7 @@ namespace Flair::Assets {
         ArrayW<uint8_t> imageData (texture->mWidth);
         memcpy(imageData.begin(), texture->pcData, texture->mWidth);
 
-        Texture2D* unityTexture = Texture2D::New_ctor(0, 0, TextureFormat::RGBA32, false, false); // Size is updated automatically
+        Texture2D* unityTexture = Texture2D::New_ctor(2, 2, TextureFormat::RGBA32, false, false); // Size is updated automatically
         unityTexture->set_name(texture->mFilename.C_Str()); // TODO This name can be ''
         if(!ImageConversion::LoadImage(unityTexture, imageData)) {PaperLogger.error("Failed to load texture '{}'", texture->mFilename.C_Str()); return nullptr;}
         
@@ -211,7 +211,7 @@ namespace Flair::Assets {
                 file.read(reinterpret_cast<char*>(fileData->_values), fileSize);
                 file.close();
 
-                unityTexture = Texture2D::New_ctor(0, 0, TextureFormat::RGBA32, false, false);
+                unityTexture = Texture2D::New_ctor(2, 2, TextureFormat::RGBA32, false, false);
                 unityTexture->set_name(texturePath.C_Str());
                 if(!ImageConversion::LoadImage(unityTexture, fileData)) {PaperLogger.error("Failed to load texture file '{}'", fullTexturePath); return nullptr;}
                 unityTextures.push_back(unityTexture);
