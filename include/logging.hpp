@@ -1,6 +1,7 @@
 #pragma once
 
 #include "assimp/scene.h"
+#include "UnityEngine/Transform.hpp"
 
 #define LOG_GARBAGE_COLLECTION_ISSUES   true
 
@@ -17,3 +18,4 @@
 #define DEPTH_STR "|  "
 
 void logHierarchy(const aiNode* node, const std::string& depthStr = "");
+void logHierarchy(UnityEngine::Transform* transform, const int depthUp = 0, const int depthDown = 1000, const bool listComponents = false, std::string depthStr = "");
