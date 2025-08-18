@@ -40,7 +40,7 @@ void logHierarchy(const aiNode* node, const std::string& depthStr/* = ""*/) {
     }
 }
 
-void logHierarchy(Transform* transform, const int depthUp/* = 0*/, const int depthDown/* = 1000*/, const bool listComponents/* = false*/, std::string depthStr/* = ""*/) {
+void logHierarchy(Transform* transform, const bool listComponents/* = false*/, const int depthUp/* = 0*/, const int depthDown/* = 1000*/, std::string depthStr/* = ""*/) {
     DEFINE_HIERARCHY_FUNC_NAME_BUFFER("logHierarchy");
     if(depthUp > 0) {
         std::vector<Transform*> familyTree;
@@ -67,7 +67,7 @@ void logHierarchy(Transform* transform, const int depthUp/* = 0*/, const int dep
 
     for(int i = 0; i < transform->get_childCount(); i++) {
         Transform* childTransform = transform->GetChild(i);
-        logHierarchy(childTransform, 0, depthDown - 1, listComponents, depthStr + DEPTH_STR);
+        logHierarchy(childTransform, listComponents, 0, depthDown - 1, depthStr + DEPTH_STR);
     }
 }
 

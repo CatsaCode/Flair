@@ -54,7 +54,7 @@ void SpawnToyota() {
 MAKE_HOOK_MATCH(AssimpTestHook, &GlobalNamespace::MainMenuViewController::DidActivate, void, GlobalNamespace::MainMenuViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
     AssimpTestHook(self, firstActivation, addedToHierarchy, screenSystemEnabling);
 
-    logHierarchy(self->get_transform(), 1000, 1000, true);
+    logHierarchy(self->get_transform(), true, 1000, 1000);
 
     if(!firstActivation) return;
 
