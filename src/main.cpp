@@ -11,6 +11,7 @@
 #include "metacore/shared/input.hpp"
 #include "GlobalNamespace/MainMenuViewController.hpp"
 #include "UnityEngine/Resources.hpp"
+#include "UnityEngine/SceneManagement/SceneManagement.hpp"
 #include "UnityEngine/ParticleSystem.hpp"
 #include "Window/window.hpp"
 #include "Window/createModuleWindows.hpp"
@@ -32,7 +33,7 @@ Configuration &getConfig() {
     return config;
 }
 
-void SpawnToyota() {
+void spawnToyota() {
     static UnityW<UnityEngine::GameObject> toyotaGO = nullptr;
     
     if(toyotaGO) {
@@ -50,19 +51,36 @@ void SpawnToyota() {
     toyotaGO->get_transform()->set_localScale(::UnityEngine::Vector3(0.4, 0.4, 0.4));
 }
 
+void logSceneHierarchy() {
+    PaperLogger.info("Scene hierarchy");
+    ArrayW<UnityW<UnityEngine::GameObject>> sceneGOs = UnityEngine::SceneManagement::SceneManager::GetActiveScene().GetRootGameObjects();
+    for(UnityW<UnityEngine::GameObject> go : sceneGOs) if(go) logHierarchy(go->get_transform());
+}
+
 
 MAKE_HOOK_MATCH(AssimpTestHook, &GlobalNamespace::MainMenuViewController::DidActivate, void, GlobalNamespace::MainMenuViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
     AssimpTestHook(self, firstActivation, addedToHierarchy, screenSystemEnabling);
 
-    logHierarchy(self->get_transform(), true, 1000, 1000);
-
     if(!firstActivation) return;
 
-    MetaCore::Events::AddCallback(MetaCore::Input::ButtonEvents, MetaCore::Input::Buttons::BY, [](){
-        static bool prevPressed = false;
-        bool pressed = MetaCore::Input::GetPressed(MetaCore::Input::Controllers::Right, MetaCore::Input::Buttons::AX);
-        if(pressed && !prevPressed) SpawnToyota();
-        prevPressed = pressed;
+    MetaCore::Events::AddCallback(MetaCore::Input::ButtonEvents, MetaCore::Input::Buttons::AX, [](){
+        static bool prevRightB = false;
+        static bool prevRightTrigger = false;
+        static bool prevRightGrip = false;
+        static bool prevRightThumbstick = false;
+
+        bool rightB = MetaCore::Input::GetPressed(MetaCore::Input::Controllers::Right, MetaCore::Input::Buttons::BY);
+        bool rightTrigger = MetaCore::Input::GetPressed(MetaCore::Input::Controllers::Right, MetaCore::Input::Buttons::Trigger);
+        bool rightGrip = MetaCore::Input::GetPressed(MetaCore::Input::Controllers::Right, MetaCore::Input::Buttons::Grip);
+        bool rightThumbstick = MetaCore::Input::GetPressed(MetaCore::Input::Controllers::Right, MetaCore::Input::Buttons::Thumbstick);
+
+        if(rightB && !prevRightB) spawnToyota();
+        if(rightThumbstick && !prevRightThumbstick) logSceneHierarchy();
+
+        prevRightB = rightB;
+        prevRightTrigger = rightTrigger;
+        prevRightGrip = rightGrip;
+        prevRightThumbstick = rightThumbstick;
     });
 
     // PaperLogger.info("Loading file...");
