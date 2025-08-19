@@ -1,6 +1,10 @@
 # Flair
 
-Create custom particle systems
+Import assets, configure them, and place them wherever desired, all on Quest Standalone.
+
+This mod is in early development with **no public releases available.**
+Still want to help with the plans and steer it towards being the best mod that it can be?
+Discussion is open on the [Flair Discord server!](https://discord.gg/T3jZghYQ)
 
 Use `qpm s build` to build
 Same goes for `qpm s copy` and `qpm s qmod`
