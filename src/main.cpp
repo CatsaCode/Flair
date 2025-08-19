@@ -51,6 +51,25 @@ void spawnToyota() {
     toyotaGO->get_transform()->set_localScale(::UnityEngine::Vector3(0.4, 0.4, 0.4));
 }
 
+void spawnTeapotOnNotes() {
+    static UnityW<UnityEngine::GameObject> teapotGO;
+    if(!teapotGO) {
+        teapotGO = Flair::Assets::loadModel("/storage/emulated/0/ModData/com.beatgames.beatsaber/Mods/Flair/teapot.glb");
+        if(!teapotGO) return;
+        teapotGO->set_name("Teapot");
+        teapotGO->SetActive(false);
+        UnityEngine::GameObject::DontDestroyOnLoad(teapotGO);
+    }
+
+    ArrayW<UnityEngine::GameObject*> everyGO = UnityEngine::GameObject::FindObjectsOfType<UnityEngine::GameObject*>();
+    for(UnityEngine::GameObject* go : everyGO) {
+        if(!(go->get_name()->StartsWith("Note ") || go->get_name() == "NoteCube")) continue;
+        PaperLogger.info("Instancing teapot onto '{}'", go->get_name());
+        UnityEngine::GameObject* teapotCloneGO = UnityEngine::GameObject::Instantiate(teapotGO, go->get_transform(), false);
+        teapotCloneGO->SetActive(true);
+    }
+}
+
 void logSceneHierarchy() {
     PaperLogger.info("Scene hierarchy");
     ArrayW<UnityW<UnityEngine::GameObject>> sceneGOs = UnityEngine::SceneManagement::SceneManager::GetActiveScene().GetRootGameObjects();
@@ -75,6 +94,7 @@ MAKE_HOOK_MATCH(AssimpTestHook, &GlobalNamespace::MainMenuViewController::DidAct
         bool rightThumbstick = MetaCore::Input::GetPressed(MetaCore::Input::Controllers::Right, MetaCore::Input::Buttons::Thumbstick);
 
         if(rightB && !prevRightB) spawnToyota();
+        if(rightTrigger && !prevRightTrigger) spawnTeapotOnNotes();
         if(rightThumbstick && !prevRightThumbstick) logSceneHierarchy();
 
         prevRightB = rightB;
