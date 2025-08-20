@@ -64,6 +64,7 @@ void spawnTeapotOnNotes() {
     ArrayW<UnityEngine::GameObject*> everyGO = UnityEngine::GameObject::FindObjectsOfType<UnityEngine::GameObject*>();
     for(UnityEngine::GameObject* go : everyGO) {
         if(!(go->get_name()->StartsWith("Note ") || go->get_name() == "NoteCube")) continue;
+        if(go->get_transform()->Find("Teapot(Clone)")) continue;
         PaperLogger.info("Instancing teapot onto '{}'", go->get_name());
         UnityEngine::GameObject* teapotCloneGO = UnityEngine::GameObject::Instantiate(teapotGO, go->get_transform(), false);
         teapotCloneGO->SetActive(true);
