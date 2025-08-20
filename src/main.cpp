@@ -13,6 +13,7 @@
 #include "UnityEngine/Resources.hpp"
 #include "UnityEngine/SceneManagement/SceneManagement.hpp"
 #include "UnityEngine/ParticleSystem.hpp"
+#include "UnityEngine/Time.hpp"
 #include "Window/window.hpp"
 #include "Window/createModuleWindows.hpp"
 #include "assets.hpp"
@@ -60,6 +61,8 @@ void spawnTeapotOnNotes() {
         teapotGO->SetActive(false);
         UnityEngine::GameObject::DontDestroyOnLoad(teapotGO);
     }
+    
+    float startTime = UnityEngine::Time::get_realtimeSinceStartup();
 
     ArrayW<UnityEngine::GameObject*> everyGO = UnityEngine::GameObject::FindObjectsOfType<UnityEngine::GameObject*>();
     for(UnityEngine::GameObject* go : everyGO) {
@@ -69,6 +72,9 @@ void spawnTeapotOnNotes() {
         UnityEngine::GameObject* teapotCloneGO = UnityEngine::GameObject::Instantiate(teapotGO, go->get_transform(), false);
         teapotCloneGO->SetActive(true);
     }
+
+    float endTime = UnityEngine::Time::get_realtimeSinceStartup();
+    PaperLogger.info("Looped through {} GameObjects in {} seconds", everyGO.size(), endTime - startTime);
 }
 
 void logSceneHierarchy() {
