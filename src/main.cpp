@@ -14,12 +14,14 @@
 #include "UnityEngine/SceneManagement/SceneManagement.hpp"
 #include "UnityEngine/ParticleSystem.hpp"
 #include "UnityEngine/Time.hpp"
+#include "UnityEngine/Bindings/Bindings.hpp"
 #include "Window/window.hpp"
 #include "Window/createModuleWindows.hpp"
 #include "assets.hpp"
 
 #include "bsml/shared/Helpers/getters.hpp"
 #include "bsml/shared/BSML/MainThreadScheduler.hpp"
+#include <cstdint>
 
 
 static modloader::ModInfo modInfo{MOD_ID, VERSION, 0};
@@ -146,7 +148,13 @@ MAKE_HOOK_MATCH(AssimpTestHook, &GlobalNamespace::MainMenuViewController::DidAct
     // else Flair::Window::CreateMainModuleWindow(nullptr, dustParticleSystem);
 }
 
+MAKE_HOOK_MATCH(SillyHook, &UnityEngine::GameObject::set_name, void, UnityEngine::Object* self,
+    StringW string
+) {
+    SillyHook(self, string);
 
+    PaperLogger.info("Set GameObject name to '{}'", string);
+}
 
 // Called at the early stages of game loading
 MOD_EXTERN_FUNC void setup(CModInfo *info) noexcept {
@@ -173,6 +181,7 @@ MOD_EXTERN_FUNC void late_load() noexcept {
     PaperLogger.info("Installing hooks...");
 
     INSTALL_HOOK(PaperLogger, AssimpTestHook);
+    INSTALL_HOOK(PaperLogger, SillyHook);
 
     PaperLogger.info("Installed all hooks!");
 }
