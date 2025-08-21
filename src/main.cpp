@@ -54,25 +54,39 @@ void spawnToyota() {
     toyotaGO->get_transform()->set_localScale(::UnityEngine::Vector3(0.4, 0.4, 0.4));
 }
 
-void spawnTeapotOnNotes() {
+UnityW<UnityEngine::GameObject> getTeapotGO() {
     static UnityW<UnityEngine::GameObject> teapotGO;
+
     if(!teapotGO) {
         teapotGO = Flair::Assets::loadModel("/storage/emulated/0/ModData/com.beatgames.beatsaber/Mods/Flair/teapot.glb");
-        if(!teapotGO) return;
+        if(!teapotGO) return nullptr;
         teapotGO->set_name("Teapot");
         teapotGO->SetActive(false);
         UnityEngine::GameObject::DontDestroyOnLoad(teapotGO);
     }
-    
+
+    return teapotGO;
+}
+
+void spawnTeapotOnGameObject(UnityEngine::GameObject* go) {
+    UnityW<UnityEngine::GameObject> teapotGO = getTeapotGO();
+    if(!teapotGO) return;
+
+    if(go->get_transform()->Find("Teapot(Clone)")) return;
+
+    PaperLogger.info("Instantiating teapot on '{}'", go->get_name());
+    UnityW<UnityEngine::GameObject> teapotCloneGO = UnityEngine::GameObject::Instantiate(teapotGO, go->get_transform(), false);
+    if(!teapotCloneGO) {PaperLogger.error("Failed instantiating teapot"); return;}
+    teapotCloneGO->SetActive(true);
+}
+
+void spawnTeapotOnNotes() {
     float startTime = UnityEngine::Time::get_realtimeSinceStartup();
 
     ArrayW<UnityEngine::GameObject*> everyGO = UnityEngine::GameObject::FindObjectsOfType<UnityEngine::GameObject*>();
     for(UnityEngine::GameObject* go : everyGO) {
         if(!(go->get_name()->StartsWith("Note ") || go->get_name() == "NoteCube")) continue;
-        if(go->get_transform()->Find("Teapot(Clone)")) continue;
-        PaperLogger.info("Instancing teapot onto '{}'", go->get_name());
-        UnityEngine::GameObject* teapotCloneGO = UnityEngine::GameObject::Instantiate(teapotGO, go->get_transform(), false);
-        teapotCloneGO->SetActive(true);
+        spawnTeapotOnGameObject(go);
     }
 
     float endTime = UnityEngine::Time::get_realtimeSinceStartup();
@@ -156,6 +170,17 @@ MAKE_HOOK_MATCH(SillyHook, &UnityEngine::GameObject::set_name, void, UnityEngine
     PaperLogger.info("Set GameObject name to '{}'", string);
 }
 
+MAKE_HOOK_NO_CATCH(AwakeFromLoad_Hook, 0x0, void, 
+    void* GameObjectPtr_this, uint32_t AwakeFromLoadMode_param_1
+) {
+    AwakeFromLoad_Hook(GameObjectPtr_this, AwakeFromLoadMode_param_1);
+    UnityEngine::GameObject* self = (UnityEngine::GameObject*)UnityEngine::Object::FindObjectFromInstanceID(*(int*)( (char*)GameObjectPtr_this + 8 )).ptr();
+    
+    if(UnityEngine::Object::IsPersistent(self)) return; // Can't instantiate on Unity prefabs
+    if(!(self->get_name()->StartsWith("Note ") || self->get_name() == "NoteCube")) return;
+    BSML::MainThreadScheduler::ScheduleAfterTime(1, [self](){spawnTeapotOnGameObject(self);}); // Game doesn't really like it when you start doing complicated things in the AwakeFromLoad method
+}
+
 // Called at the early stages of game loading
 MOD_EXTERN_FUNC void setup(CModInfo *info) noexcept {
     *info = modInfo.to_c();
@@ -182,6 +207,14 @@ MOD_EXTERN_FUNC void late_load() noexcept {
 
     INSTALL_HOOK(PaperLogger, AssimpTestHook);
     INSTALL_HOOK(PaperLogger, SillyHook);
+
+    uintptr_t libunity = baseAddr("libunity.so");
+    PaperLogger.info("Found libunity: {}", libunity);
+    if(!libunity) {PaperLogger.error("Could not find libunity"); return;}
+    uintptr_t AwakeFromLoad = findPattern(libunity, "fe 0f 1e f8 f4 4f 01 a9 f4 03 01 2a 3f 0c 00 71 f3 03 00 aa 61 00 00 54 e8 1f 80 52 68 de 01 39 e0 03 13 aa 0f 00 00 94 e0 03 13 aa 2b 00 00 94 9f 0e 00 71 00 01 00 54 e8 9c 00 f0 01 9d 44 f9");
+    PaperLogger.info("Found AwakeFromLoad: {}", AwakeFromLoad);
+    if(!AwakeFromLoad) {PaperLogger.error("Could not find AwakeFromLoad"); return;}
+    INSTALL_HOOK_DIRECT(PaperLogger, AwakeFromLoad_Hook, reinterpret_cast<void*>(AwakeFromLoad));
 
     PaperLogger.info("Installed all hooks!");
 }
